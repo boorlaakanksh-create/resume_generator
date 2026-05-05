@@ -71,6 +71,7 @@ export default function ResumeGenerator() {
   const buildResumeData = () => ({
     personalInfo: PROFILE,
     contactLocation: parsedData.contactLocation || 'Dallas, TX',
+    jobTitle: parsedData.jobTitle || '',
     summary: parsedData.professionalSummary,
     skills: parsedData.skills,
     experience: parsedData.workExperience,
