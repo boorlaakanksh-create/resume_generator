@@ -32,7 +32,7 @@ Experienced Data Engineer specializing in building scalable ETL and data ingesti
 - Maintained CI/CD pipelines with automated testing and clear code modules, collaborating with cross-functional teams to enhance deployment reliability and reduce rollback incidents by 20%.
 
 ### Data Engineer II — Microsoft
-**SEA, US | May 2024 - Sep 2025**
+**Seattle, US | May 2024 - Sep 2025**
 
 - Constructed ETL data ingestion pipelines in Azure Data Factory, collaboratively ingesting over 3 TB of retail transaction data weekly into Azure Data Lake Storage.
 - Ensured data quality through PySpark transformations and validation checks, communicating pipeline adjustments that decreased data errors by 35% across multiple reporting layers.
