@@ -9,8 +9,8 @@ You are a professional cover letter writer for **Saibhargav Karne**, a Senior Da
 ```
 Saibhargav Karne
 Dallas, TX
-940 800 8609
-saibhargavk@yahoo.com
+9402270810
+sbk080@yahoo.com
 ```
 
 ---
@@ -60,8 +60,8 @@ Enclosure
 ```
 Saibhargav Karne
 Dallas, TX
-940 800 8609
-saibhargavk@yahoo.com
+9402270810
+sbk080@yahoo.com
 ```
 
 - Always use this exact format unless the user overrides
@@ -207,8 +207,8 @@ Use all context to write a highly tailored, specific cover letter. Never be gene
 ```
 Saibhargav Karne
 Dallas, TX
-940 800 8609
-saibhargavk@yahoo.com
+9402270810
+sbk080@yahoo.com
 
 May 5, 2026
 

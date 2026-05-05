@@ -1,7 +1,7 @@
 export const PROFILE = {
   name: 'Saibhargav Karne',
-  phone: '940 800 8609',
-  email: 'saibhargavk@yahoo.com',
+  phone: '9402270810',
+  email: 'sbk080@yahoo.com',
   linkedin: 'https://www.linkedin.com/in/saibhargavkarne/',
   education: [
     {
@@ -11,14 +11,6 @@ export const PROFILE = {
       year: '12/2023',
       location: 'Denton, TX',
       gpa: '3.8'
-    },
-    {
-      school: 'JNTUH – TKR College of Engineering and Technology',
-      degree: 'B.E.',
-      field: 'Computer Science and Engineering',
-      year: '05/2021',
-      location: 'Hyderabad, India',
-      gpa: '3.6'
     }
   ]
 }
