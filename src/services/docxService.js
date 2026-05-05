@@ -95,6 +95,15 @@ function createBulletParagraph(text, isLastBullet = false) {
   })
 }
 
+function buildCertificationText(certification) {
+  const parts = [certification.name]
+  if (certification.status) parts.push(`Status: ${certification.status}`)
+  if (certification.credentialId) parts.push(`Credential ID: ${certification.credentialId}`)
+  if (certification.certificationNumber) parts.push(`Certification Number: ${certification.certificationNumber}`)
+  if (certification.earnedOn) parts.push(`Earned On: ${certification.earnedOn}`)
+  return parts.join(' | ')
+}
+
 const docxService = {
   async generateResume(resumeData, fileNameBase = 'Karne_Saibhargav_Resume') {
     const sections = []
@@ -341,6 +350,14 @@ const docxService = {
             spacing: { after: 60 }
           })
         )
+      })
+    }
+
+    if (resumeData.certifications?.length > 0) {
+      sections.push(createSectionHeader('CERTIFICATIONS'))
+
+      resumeData.certifications.forEach((certification, index) => {
+        sections.push(createBulletParagraph(buildCertificationText(certification), index === resumeData.certifications.length - 1))
       })
     }
 

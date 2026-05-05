@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BriefcaseIcon, Download, RefreshCw, Search, Trash2 } from 'lucide-react'
 import docxService from '../services/docxService'
-import { PROFILE } from '../data/profile'
+import { DEFAULT_PROFILE_ID, getProfileById } from '../data/profiles'
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -90,14 +90,17 @@ export default function Tracker() {
       const parsed = full.resumeJson
       if (!parsed) throw new Error('No resume JSON stored')
 
+      const selectedProfile = getProfileById(full.profileId || application.profileId || DEFAULT_PROFILE_ID)
+
       const resumeData = {
-        personalInfo: PROFILE,
+        personalInfo: selectedProfile.personalInfo,
         contactLocation: parsed.contactLocation || 'Dallas, TX',
         jobTitle: parsed.jobTitle || '',
         summary: parsed.professionalSummary,
         skills: parsed.skills,
         experience: parsed.workExperience,
-        education: PROFILE.education
+        education: selectedProfile.education,
+        certifications: selectedProfile.certifications
       }
 
       await docxService.generateResume(resumeData, parsed.resumeMeta?.fileName || application.fileName)
@@ -337,6 +340,7 @@ export default function Tracker() {
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500">
                       <span className="font-mono text-xs text-slate-400">{application.fileName}</span>
+                      {application.profileLabel && <span>{application.profileLabel}</span>}
                       <span>Applied {formatDate(application.date)}</span>
                     </div>
                   </div>

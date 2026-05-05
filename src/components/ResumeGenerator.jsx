@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, Download, RotateCcw, Save } from 'lucide-react'
 import docxService from '../services/docxService'
-import { PROFILE } from '../data/profile'
+import { DEFAULT_PROFILE_ID, getProfileById, RESUME_PROFILES } from '../data/profiles'
 
 function camelToSpaces(str) {
   return str.replace(/([A-Z])/g, ' $1').trim()
@@ -19,11 +19,14 @@ function parseFileName(fileName) {
 
 export default function ResumeGenerator() {
   const [rawJson, setRawJson] = useState('')
+  const [selectedProfileId, setSelectedProfileId] = useState(DEFAULT_PROFILE_ID)
   const [parseError, setParseError] = useState('')
   const [parsedData, setParsedData] = useState(null)
   const [showPreview, setShowPreview] = useState(true)
   const [saveStatus, setSaveStatus] = useState(null)
   const [downloadError, setDownloadError] = useState('')
+
+  const selectedProfile = getProfileById(selectedProfileId)
 
   const handleParse = () => {
     setParseError('')
@@ -69,13 +72,14 @@ export default function ResumeGenerator() {
   }
 
   const buildResumeData = () => ({
-    personalInfo: PROFILE,
+    personalInfo: selectedProfile.personalInfo,
     contactLocation: parsedData.contactLocation || 'Dallas, TX',
     jobTitle: parsedData.jobTitle || '',
     summary: parsedData.professionalSummary,
     skills: parsedData.skills,
     experience: parsedData.workExperience,
-    education: PROFILE.education
+    education: selectedProfile.education,
+    certifications: selectedProfile.certifications
   })
 
   const handleDownload = async () => {
@@ -101,6 +105,8 @@ export default function ResumeGenerator() {
           fileName: parsedData.resumeMeta.fileName,
           company,
           role,
+          profileId: selectedProfile.id,
+          profileLabel: selectedProfile.label,
           resumeJson: parsedData
         })
       })
@@ -148,6 +154,27 @@ export default function ResumeGenerator() {
             }`}
           />
 
+          <div className="mt-4">
+            <label className="mb-2 block text-sm font-medium text-slate-700">Hardcoded Resume Profile</label>
+            <select
+              value={selectedProfileId}
+              onChange={(event) => {
+                setSelectedProfileId(event.target.value)
+                setSaveStatus(null)
+              }}
+              className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500"
+            >
+              {RESUME_PROFILES.map((profile) => (
+                <option key={profile.id} value={profile.id}>
+                  {profile.label}
+                </option>
+              ))}
+            </select>
+            <p className="mt-2 text-xs text-slate-500">
+              The selected profile supplies contact details and education for the generated DOCX.
+            </p>
+          </div>
+
           {parseError && (
             <div className="mt-3 flex items-start gap-2 text-sm text-red-600">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -186,10 +213,23 @@ export default function ResumeGenerator() {
         <div className="rounded-3xl border border-indigo-100 bg-indigo-50 p-5">
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Hardcoded Profile</p>
           <div className="space-y-1 text-sm text-indigo-950">
-            <p><span className="font-medium">Name:</span> {PROFILE.name}</p>
-            <p><span className="font-medium">Phone:</span> {PROFILE.phone}</p>
-            <p><span className="font-medium">Email:</span> {PROFILE.email}</p>
-            <p><span className="font-medium">Education:</span> UNT (M.S.)</p>
+            <p><span className="font-medium">Profile:</span> {selectedProfile.shortLabel}</p>
+            <p><span className="font-medium">Name:</span> {selectedProfile.personalInfo.name}</p>
+            <p><span className="font-medium">Phone:</span> {selectedProfile.personalInfo.phone}</p>
+            <p><span className="font-medium">Email:</span> {selectedProfile.personalInfo.email}</p>
+            <p><span className="font-medium">LinkedIn:</span> {selectedProfile.personalInfo.linkedin}</p>
+            <p><span className="font-medium">Education:</span> {selectedProfile.education.map((entry) => entry.school).join(' | ')}</p>
+            <p className="pt-2 text-xs leading-relaxed text-indigo-800">{selectedProfile.summary}</p>
+            {selectedProfile.certifications.length > 0 && (
+              <p className="pt-2 text-xs leading-relaxed text-indigo-800">
+                <span className="font-semibold">Certifications:</span> {selectedProfile.certifications.map((item) => item.name).join(' | ')}
+              </p>
+            )}
+            {selectedProfile.clientProjects.length > 0 && (
+              <p className="pt-2 text-xs leading-relaxed text-indigo-800">
+                <span className="font-semibold">Client Projects:</span> {selectedProfile.clientProjects.join(' | ')}
+              </p>
+            )}
           </div>
         </div>
       </div>

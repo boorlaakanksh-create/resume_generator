@@ -2,7 +2,7 @@ import { Redis } from '@upstash/redis'
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN
 })
 
 export default async function handler(req, res) {
@@ -14,8 +14,6 @@ export default async function handler(req, res) {
     return res.status(200).end()
   }
 
-  // GET /api/tracker        → list all (metadata only)
-  // GET /api/tracker?id=xxx → full record (with resumeJson) for re-download
   if (req.method === 'GET') {
     const { id } = req.query
 
@@ -29,12 +27,11 @@ export default async function handler(req, res) {
     const ids = await redis.lrange('app:index', 0, -1)
     if (!ids || ids.length === 0) return res.status(200).json([])
 
-    const records = await Promise.all(ids.map(id => redis.get(`app:${id}`)))
+    const records = await Promise.all(ids.map((recordId) => redis.get(`app:${recordId}`)))
     const metadata = records
       .filter(Boolean)
-      .map(r => {
-        const record = typeof r === 'string' ? JSON.parse(r) : r
-        // Return everything except the heavy resumeJson payload
+      .map((recordValue) => {
+        const record = typeof recordValue === 'string' ? JSON.parse(recordValue) : recordValue
         const { resumeJson, ...meta } = record
         return meta
       })
@@ -42,9 +39,8 @@ export default async function handler(req, res) {
     return res.status(200).json(metadata)
   }
 
-  // POST /api/tracker → save new application
   if (req.method === 'POST') {
-    const { fileName, company, role, resumeJson } = req.body
+    const { fileName, company, role, profileId, profileLabel, resumeJson } = req.body
 
     if (!fileName || !resumeJson) {
       return res.status(400).json({ error: 'fileName and resumeJson are required' })
@@ -52,7 +48,16 @@ export default async function handler(req, res) {
 
     const id = Date.now().toString()
     const date = new Date().toISOString()
-    const record = { id, fileName, company: company || '', role: role || '', date, resumeJson }
+    const record = {
+      id,
+      fileName,
+      company: company || '',
+      role: role || '',
+      profileId: profileId || '',
+      profileLabel: profileLabel || '',
+      date,
+      resumeJson
+    }
 
     await redis.set(`app:${id}`, JSON.stringify(record))
     await redis.lpush('app:index', id)
@@ -60,7 +65,6 @@ export default async function handler(req, res) {
     return res.status(201).json({ id })
   }
 
-  // DELETE /api/tracker?id=xxx → remove application
   if (req.method === 'DELETE') {
     const { id } = req.query
     if (!id) return res.status(400).json({ error: 'id is required' })
