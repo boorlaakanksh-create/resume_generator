@@ -22,6 +22,7 @@ export default function ResumeGenerator() {
   const [jobDescription, setJobDescription] = useState('')
   const [selectedProfileId, setSelectedProfileId] = useState(DEFAULT_PROFILE_ID)
   const [parseError, setParseError] = useState('')
+  const [jobDescriptionError, setJobDescriptionError] = useState('')
   const [parsedData, setParsedData] = useState(null)
   const [showPreview, setShowPreview] = useState(true)
   const [saveStatus, setSaveStatus] = useState(null)
@@ -106,6 +107,13 @@ export default function ResumeGenerator() {
   }
 
   const handleSaveToTracker = async () => {
+    if (!jobDescription.trim()) {
+      setJobDescriptionError('Job description is required before saving to the dashboard.')
+      setSaveStatus('error')
+      return
+    }
+
+    setJobDescriptionError('')
     setSaveStatus('saving')
     const { company, role } = parseFileName(parsedData.resumeMeta.fileName)
 
@@ -135,6 +143,7 @@ export default function ResumeGenerator() {
     setRawJson('')
     setJobDescription('')
     setParseError('')
+    setJobDescriptionError('')
     setParsedData(null)
     setSaveStatus(null)
     setDownloadError('')
@@ -251,38 +260,38 @@ export default function ResumeGenerator() {
       <div className="space-y-6">
         {parsedData ? (
           <>
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <div>
-                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">File Name</p>
-                  <p className="font-mono text-sm text-gray-800">{parsedData.resumeMeta.fileName}</p>
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+              <div className="px-6 py-6">
+                <div className="mb-4 flex items-start justify-between gap-4">
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">File Name</p>
+                    <p className="font-mono text-sm text-gray-800">{parsedData.resumeMeta.fileName}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Location</p>
+                    <p className="text-sm text-gray-800">{parsedData.contactLocation || 'Dallas, TX'}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Location</p>
-                  <p className="text-sm text-gray-800">{parsedData.contactLocation || 'Dallas, TX'}</p>
-                </div>
+
+                {(company || role) && (
+                  <div className="flex flex-wrap gap-4 rounded-2xl bg-slate-50 p-3 text-sm">
+                    {company && (
+                      <span>
+                        <span className="text-slate-500">Company:</span> <span className="font-medium">{company}</span>
+                      </span>
+                    )}
+                    {role && (
+                      <span>
+                        <span className="text-slate-500">Role:</span> <span className="font-medium">{role}</span>
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {(company || role) && (
-                <div className="flex flex-wrap gap-4 rounded-2xl bg-slate-50 p-3 text-sm">
-                  {company && (
-                    <span>
-                      <span className="text-slate-500">Company:</span> <span className="font-medium">{company}</span>
-                    </span>
-                  )}
-                  {role && (
-                    <span>
-                      <span className="text-slate-500">Role:</span> <span className="font-medium">{role}</span>
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
               <button
                 onClick={() => setShowPreview(!showPreview)}
-                className="flex w-full items-center justify-between px-6 py-4 transition-colors hover:bg-slate-50"
+                className="flex w-full items-center justify-between border-t px-6 py-4 transition-colors hover:bg-slate-50"
               >
                 <span className="font-medium text-gray-900">Content Preview</span>
                 {showPreview ? (
@@ -338,14 +347,23 @@ export default function ResumeGenerator() {
                   value={jobDescription}
                   onChange={(event) => {
                     setJobDescription(event.target.value)
+                    setJobDescriptionError('')
                     setSaveStatus(null)
                   }}
                   placeholder="Paste the job description here before saving to the dashboard."
-                  className="h-40 w-full resize-none rounded-2xl border border-slate-300 p-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500"
+                  className={`h-40 w-full resize-none rounded-2xl border p-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500 ${
+                    jobDescriptionError ? 'border-red-400' : 'border-slate-300'
+                  }`}
                 />
                 <p className="mt-2 text-xs text-slate-500">
                   This is stored with the saved application so you can view the original JD later from the dashboard.
                 </p>
+                {jobDescriptionError && (
+                  <div className="mt-3 flex items-start gap-2 text-sm text-red-600">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>{jobDescriptionError}</span>
+                  </div>
+                )}
               </div>
 
               {downloadError && (
