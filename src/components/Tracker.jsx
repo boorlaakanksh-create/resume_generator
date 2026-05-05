@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BriefcaseIcon, Download, RefreshCw, Search, Trash2 } from 'lucide-react'
+import { BriefcaseIcon, Download, Eye, RefreshCw, Search, Trash2, X } from 'lucide-react'
 import docxService from '../services/docxService'
 import { DEFAULT_PROFILE_ID, getProfileById } from '../data/profiles'
 
@@ -60,6 +60,8 @@ export default function Tracker() {
   const [deletingId, setDeletingId] = useState(null)
   const [downloadingId, setDownloadingId] = useState(null)
   const [downloadingPdfFileId, setDownloadingPdfFileId] = useState(null)
+  const [viewingJdId, setViewingJdId] = useState(null)
+  const [jobDescriptionModal, setJobDescriptionModal] = useState({ open: false, title: '', content: '' })
   const [selectedDate, setSelectedDate] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
   const [searchInput, setSearchInput] = useState('')
@@ -163,6 +165,30 @@ export default function Tracker() {
     }
   }
 
+  const handleViewJobDescription = async (application) => {
+    setViewingJdId(application.id)
+
+    try {
+      const res = await fetch(`/api/tracker?id=${application.id}`)
+      if (!res.ok) throw new Error('Fetch failed')
+      const full = await res.json()
+      setJobDescriptionModal({
+        open: true,
+        title: `${application.company || 'Application'}${application.role ? ` - ${application.role}` : ''}`,
+        content: full.jobDescription || 'No job description was saved for this application.'
+      })
+    } catch (err) {
+      console.error('JD fetch failed:', err)
+      setJobDescriptionModal({
+        open: true,
+        title: `${application.company || 'Application'}${application.role ? ` - ${application.role}` : ''}`,
+        content: 'Unable to load the saved job description.'
+      })
+    } finally {
+      setViewingJdId(null)
+    }
+  }
+
   const filteredApplications = useMemo(() => {
     const now = Date.now()
     const lowerSearch = searchTerm.trim().toLowerCase()
@@ -257,6 +283,30 @@ export default function Tracker() {
 
   return (
     <div className="space-y-8">
+      {jobDescriptionModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
+          <div className="max-h-[80vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Job Description</h3>
+                <p className="text-sm text-slate-500">{jobDescriptionModal.title}</p>
+              </div>
+              <button
+                onClick={() => setJobDescriptionModal({ open: false, title: '', content: '' })}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="max-h-[60vh] overflow-y-auto px-6 py-5">
+              <pre className="whitespace-pre-wrap font-sans text-sm leading-6 text-slate-700">
+                {jobDescriptionModal.content}
+              </pre>
+            </div>
+          </div>
+        </div>
+      )}
+
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <article key={stat.label} className="rounded-3xl bg-white px-6 py-5 shadow-[0_14px_35px_rgba(15,23,42,0.08)]">
@@ -412,6 +462,15 @@ export default function Tracker() {
                     >
                       <Download className="h-4 w-4" />
                       {downloadingPdfFileId === application.id ? 'Building...' : 'PDF File'}
+                    </button>
+
+                    <button
+                      onClick={() => handleViewJobDescription(application)}
+                      disabled={viewingJdId === application.id || !application.hasJobDescription}
+                      className="inline-flex h-11 items-center gap-2 rounded-2xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Eye className="h-4 w-4" />
+                      {viewingJdId === application.id ? 'Loading JD...' : 'View JD'}
                     </button>
 
                     <button

@@ -19,6 +19,7 @@ function parseFileName(fileName) {
 
 export default function ResumeGenerator() {
   const [rawJson, setRawJson] = useState('')
+  const [jobDescription, setJobDescription] = useState('')
   const [selectedProfileId, setSelectedProfileId] = useState(DEFAULT_PROFILE_ID)
   const [parseError, setParseError] = useState('')
   const [parsedData, setParsedData] = useState(null)
@@ -118,7 +119,8 @@ export default function ResumeGenerator() {
           role,
           profileId: selectedProfile.id,
           profileLabel: selectedProfile.label,
-          resumeJson: parsedData
+          resumeJson: parsedData,
+          jobDescription
         })
       })
 
@@ -131,6 +133,7 @@ export default function ResumeGenerator() {
 
   const handleReset = () => {
     setRawJson('')
+    setJobDescription('')
     setParseError('')
     setParsedData(null)
     setSaveStatus(null)
@@ -329,6 +332,22 @@ export default function ResumeGenerator() {
             </div>
 
             <div className="space-y-3">
+              <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <label className="mb-2 block text-sm font-medium text-slate-700">Job Description</label>
+                <textarea
+                  value={jobDescription}
+                  onChange={(event) => {
+                    setJobDescription(event.target.value)
+                    setSaveStatus(null)
+                  }}
+                  placeholder="Paste the job description here before saving to the dashboard."
+                  className="h-40 w-full resize-none rounded-2xl border border-slate-300 p-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500"
+                />
+                <p className="mt-2 text-xs text-slate-500">
+                  This is stored with the saved application so you can view the original JD later from the dashboard.
+                </p>
+              </div>
+
               {downloadError && (
                 <div className="flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                   <AlertCircle className="h-4 w-4 shrink-0" />

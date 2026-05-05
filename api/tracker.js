@@ -10,8 +10,11 @@ function parseStoredValue(value) {
 }
 
 function buildMetadata(record) {
-  const { resumeJson, ...meta } = record
-  return meta
+  const { resumeJson, jobDescription, ...meta } = record
+  return {
+    ...meta,
+    hasJobDescription: Boolean(jobDescription?.trim())
+  }
 }
 
 async function readMetadataRecord(id) {
@@ -53,7 +56,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { fileName, company, role, profileId, profileLabel, resumeJson } = req.body
+    const { fileName, company, role, profileId, profileLabel, resumeJson, jobDescription } = req.body
 
     if (!fileName || !resumeJson) {
       return res.status(400).json({ error: 'fileName and resumeJson are required' })
@@ -68,10 +71,12 @@ export default async function handler(req, res) {
       role: role || '',
       profileId: profileId || '',
       profileLabel: profileLabel || '',
-      date
+      date,
+      hasJobDescription: Boolean(jobDescription?.trim())
     }
     const fullRecord = {
       ...metadataRecord,
+      jobDescription: jobDescription || '',
       resumeJson
     }
 
