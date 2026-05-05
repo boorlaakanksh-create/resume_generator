@@ -40,6 +40,7 @@ export default function Tracker() {
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState(null)
   const [downloadingId, setDownloadingId] = useState(null)
+  const [downloadingPdfFileId, setDownloadingPdfFileId] = useState(null)
   const [selectedDate, setSelectedDate] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
   const [searchInput, setSearchInput] = useState('')
@@ -108,6 +109,38 @@ export default function Tracker() {
       console.error('Re-download failed:', err)
     } finally {
       setDownloadingId(null)
+    }
+  }
+
+  const handleRedownloadPdfFile = async (application) => {
+    setDownloadingPdfFileId(application.id)
+
+    try {
+      const res = await fetch(`/api/tracker?id=${application.id}`)
+      if (!res.ok) throw new Error('Fetch failed')
+      const full = await res.json()
+
+      const parsed = full.resumeJson
+      if (!parsed) throw new Error('No resume JSON stored')
+
+      const selectedProfile = getProfileById(full.profileId || application.profileId || DEFAULT_PROFILE_ID)
+
+      const resumeData = {
+        personalInfo: selectedProfile.personalInfo,
+        contactLocation: parsed.contactLocation || 'Dallas, TX',
+        jobTitle: parsed.jobTitle || '',
+        summary: parsed.professionalSummary,
+        skills: parsed.skills,
+        experience: parsed.workExperience,
+        education: selectedProfile.education,
+        certifications: selectedProfile.certifications
+      }
+
+      await docxService.generateResumePdfFile(resumeData, parsed.resumeMeta?.fileName || application.fileName)
+    } catch (err) {
+      console.error('PDF file download failed:', err)
+    } finally {
+      setDownloadingPdfFileId(null)
     }
   }
 
@@ -353,6 +386,15 @@ export default function Tracker() {
                     >
                       <Download className="h-4 w-4" />
                       {downloadingId === application.id ? 'Downloading...' : 'Download DOCX'}
+                    </button>
+
+                    <button
+                      onClick={() => handleRedownloadPdfFile(application)}
+                      disabled={downloadingPdfFileId === application.id}
+                      className="inline-flex h-11 items-center gap-2 rounded-2xl bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-50"
+                    >
+                      <Download className="h-4 w-4" />
+                      {downloadingPdfFileId === application.id ? 'Building...' : 'PDF File'}
                     </button>
 
                     <button

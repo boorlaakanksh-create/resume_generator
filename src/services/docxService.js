@@ -104,6 +104,23 @@ function buildCertificationText(certification) {
   return parts.join(' | ')
 }
 
+function buildPlainText(text) {
+  return parseFormattedText(text)
+    .map((run) => run.text)
+    .join('')
+}
+
+let jsPdfModulePromise = null
+
+async function loadJsPdf() {
+  if (!jsPdfModulePromise) {
+    jsPdfModulePromise = import(/* @vite-ignore */ 'https://esm.sh/jspdf@2.5.2')
+  }
+
+  const module = await jsPdfModulePromise
+  return module.jsPDF || module.default?.jsPDF || module.default
+}
+
 const docxService = {
   async generateResume(resumeData, fileNameBase = 'Karne_Saibhargav_Resume') {
     const sections = []
@@ -395,6 +412,157 @@ const docxService = {
 
     const blob = await Packer.toBlob(doc)
     saveAs(blob, `${fileNameBase}.docx`)
+  },
+
+  async generateResumePdfFile(resumeData, fileNameBase = 'Karne_Saibhargav_Resume') {
+    const jsPDF = await loadJsPdf()
+    const doc = new jsPDF({
+      unit: 'pt',
+      format: 'letter'
+    })
+
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const marginLeft = 48
+    const marginRight = 48
+    const contentWidth = pageWidth - marginLeft - marginRight
+    const bottomMargin = 48
+    const rightColumnX = pageWidth - marginRight
+    let cursorY = 44
+
+    const ensureSpace = (heightNeeded = 24) => {
+      if (cursorY + heightNeeded <= pageHeight - bottomMargin) return
+      doc.addPage()
+      cursorY = 44
+    }
+
+    const drawWrappedText = (text, {
+      x = marginLeft,
+      width = contentWidth,
+      size = 11,
+      style = 'normal',
+      align = 'left',
+      lineHeight = 15,
+      before = 0,
+      after = 0
+    } = {}) => {
+      const safeText = buildPlainText(text || '')
+      if (!safeText) return
+
+      cursorY += before
+      doc.setFont('times', style)
+      doc.setFontSize(size)
+      const lines = doc.splitTextToSize(safeText, width)
+      ensureSpace(lines.length * lineHeight + after)
+      doc.text(lines, x, cursorY, { align, maxWidth: width })
+      cursorY += lines.length * lineHeight + after
+    }
+
+    const drawSectionHeader = (text) => {
+      ensureSpace(26)
+      cursorY += 10
+      doc.setFont('times', 'bold')
+      doc.setFontSize(10)
+      doc.text(text, marginLeft, cursorY)
+      cursorY += 4
+      doc.setLineWidth(0.8)
+      doc.line(marginLeft, cursorY, rightColumnX, cursorY)
+      cursorY += 10
+    }
+
+    const drawEntryHeader = (leftText, rightText) => {
+      const leftLines = doc.splitTextToSize(leftText || '', contentWidth - 150)
+      const rightLines = doc.splitTextToSize(rightText || '', 140)
+      const lineCount = Math.max(leftLines.length, rightLines.length)
+      ensureSpace(lineCount * 14 + 8)
+
+      doc.setFont('times', 'normal')
+      doc.setFontSize(11)
+      doc.text(leftLines, marginLeft, cursorY)
+      doc.text(rightLines, rightColumnX, cursorY, { align: 'right' })
+      cursorY += lineCount * 14 + 4
+    }
+
+    const drawBullets = (items) => {
+      items.forEach((item) => {
+        const lines = doc.splitTextToSize(buildPlainText(item), contentWidth - 16)
+        ensureSpace(lines.length * 14 + 4)
+        doc.setFont('times', 'normal')
+        doc.setFontSize(11)
+        doc.text('-', marginLeft + 4, cursorY)
+        doc.text(lines, marginLeft + 14, cursorY)
+        cursorY += lines.length * 14 + 2
+      })
+      cursorY += 4
+    }
+
+    const personalInfo = resumeData.personalInfo || {}
+    const contactParts = []
+
+    if (personalInfo.phone) contactParts.push(personalInfo.phone)
+    if (personalInfo.email) contactParts.push(personalInfo.email)
+    if (resumeData.contactLocation) contactParts.push(resumeData.contactLocation)
+    ;[personalInfo.linkedin, personalInfo.github, personalInfo.website]
+      .filter(Boolean)
+      .forEach((item) => contactParts.push(item.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')))
+
+    doc.setFont('times', 'bold')
+    doc.setFontSize(16)
+    doc.text(personalInfo.name || 'Saibhargav Karne', pageWidth / 2, cursorY, { align: 'center' })
+    cursorY += 16
+
+    doc.setFont('times', 'normal')
+    doc.setFontSize(10)
+    doc.text(contactParts.join(' | '), pageWidth / 2, cursorY, { align: 'center', maxWidth: contentWidth })
+    cursorY += 16
+
+    if (resumeData.jobTitle) {
+      doc.setFont('times', 'bolditalic')
+      doc.setFontSize(11)
+      doc.text(resumeData.jobTitle, pageWidth / 2, cursorY, { align: 'center' })
+      cursorY += 18
+    }
+
+    if (resumeData.summary) {
+      drawSectionHeader('PROFESSIONAL SUMMARY')
+      drawWrappedText(resumeData.summary, { lineHeight: 14, after: 4 })
+    }
+
+    if (resumeData.skills && Object.keys(resumeData.skills).length > 0) {
+      drawSectionHeader('TECHNICAL SKILLS')
+      Object.entries(resumeData.skills).forEach(([category, skills]) => {
+        const skillText = Array.isArray(skills) ? skills.join(', ') : skills
+        drawWrappedText(`${category}: ${skillText}`, { lineHeight: 14, after: 2 })
+      })
+    }
+
+    if (resumeData.experience?.length > 0) {
+      drawSectionHeader('PROFESSIONAL EXPERIENCE')
+      resumeData.experience.forEach((experience) => {
+        const leftText = `${experience.position || ''}${experience.position && experience.company ? ', ' : ''}${experience.company || ''}`
+        const rightText = [experience.dates || experience.period || '', experience.location || ''].filter(Boolean).join(' | ')
+        drawEntryHeader(leftText, rightText)
+        drawBullets(experience.achievements || experience.bullets || experience.responsibilities || [])
+      })
+    }
+
+    if (resumeData.education?.length > 0) {
+      drawSectionHeader('EDUCATION')
+      resumeData.education.forEach((education) => {
+        const degreeText = education.field ? `${education.degree} in ${education.field}` : education.degree
+        const degreeLine = education.gpa ? `${degreeText} (GPA: ${education.gpa})` : degreeText
+        drawWrappedText(degreeLine, { style: 'bold', after: 2 })
+        const rightText = [education.year || education.dates || '', education.location || ''].filter(Boolean).join(' | ')
+        drawEntryHeader(education.school || '', rightText)
+      })
+    }
+
+    if (resumeData.certifications?.length > 0) {
+      drawSectionHeader('CERTIFICATIONS')
+      drawBullets(resumeData.certifications.map(buildCertificationText))
+    }
+
+    doc.save(`${fileNameBase}.pdf`)
   }
 }
 

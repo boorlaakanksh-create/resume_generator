@@ -93,6 +93,17 @@ export default function ResumeGenerator() {
     }
   }
 
+  const handleDownloadPdfFile = async () => {
+    setDownloadError('')
+
+    try {
+      await docxService.generateResumePdfFile(buildResumeData(), parsedData.resumeMeta.fileName)
+    } catch (err) {
+      console.error(err)
+      setDownloadError('Failed to generate direct PDF download. Please try again.')
+    }
+  }
+
   const handleSaveToTracker = async () => {
     setSaveStatus('saving')
     const { company, role } = parseFileName(parsedData.resumeMeta.fileName)
@@ -325,13 +336,23 @@ export default function ResumeGenerator() {
                 </div>
               )}
 
-              <button
-                onClick={handleDownload}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3 font-medium text-white transition-colors hover:bg-blue-700"
-              >
-                <Download className="h-4 w-4" />
-                Download DOCX
-              </button>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <button
+                  onClick={handleDownload}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+                >
+                  <Download className="h-4 w-4" />
+                  Download DOCX
+                </button>
+
+                <button
+                  onClick={handleDownloadPdfFile}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 py-3 font-medium text-white transition-colors hover:bg-emerald-800"
+                >
+                  <Download className="h-4 w-4" />
+                  Download PDF File
+                </button>
+              </div>
 
               <button
                 onClick={handleSaveToTracker}
