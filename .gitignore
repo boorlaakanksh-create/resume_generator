@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+
+# Reference files used during scaffolding (not part of the project)
+ref2/
+reference-repo/
+reference-repo.zip
+
+# Claude Code internal config
+.claude/
