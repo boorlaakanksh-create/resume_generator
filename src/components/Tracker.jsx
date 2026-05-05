@@ -18,6 +18,25 @@ function getStartOfDay(value) {
   return date
 }
 
+function parseDateInput(value) {
+  if (!value) return null
+  const [year, month, day] = value.split('-').map(Number)
+  if (!year || !month || !day) return null
+  return new Date(year, month - 1, day)
+}
+
+function isSameLocalDate(firstValue, secondValue) {
+  const firstDate = new Date(firstValue)
+  const secondDate = typeof secondValue === 'string' ? parseDateInput(secondValue) : new Date(secondValue)
+  if (!secondDate || Number.isNaN(firstDate.getTime()) || Number.isNaN(secondDate.getTime())) return false
+
+  return (
+    firstDate.getFullYear() === secondDate.getFullYear() &&
+    firstDate.getMonth() === secondDate.getMonth() &&
+    firstDate.getDate() === secondDate.getDate()
+  )
+}
+
 function countSince(applications, days) {
   const threshold = Date.now() - days * 24 * 60 * 60 * 1000
   return applications.filter((application) => new Date(application.date).getTime() >= threshold).length
@@ -158,9 +177,7 @@ export default function Tracker() {
         return true
       })()
 
-      const dateMatch = selectedDate
-        ? getStartOfDay(application.date).getTime() === getStartOfDay(selectedDate).getTime()
-        : true
+      const dateMatch = selectedDate ? isSameLocalDate(application.date, selectedDate) : true
 
       const searchMatch = lowerSearch
         ? (
