@@ -171,9 +171,9 @@ export default function ResumeGenerator() {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <div className="space-y-6">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-1 text-lg font-semibold text-gray-900">Paste JSON from Claude</h2>
-          <p className="mb-4 text-sm text-gray-500">
+        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-sm">
+          <h2 className="mb-1 text-lg font-semibold text-white">Paste JSON from Claude</h2>
+          <p className="mb-4 text-sm text-slate-400">
             Paste the full JSON block. Markdown code fences are stripped automatically.
           </p>
 
@@ -189,20 +189,20 @@ export default function ResumeGenerator() {
               }
             }}
             placeholder='{ "resumeMeta": { "fileName": "Karne_Saibhargav_Company_Role" }, ... }'
-            className={`h-56 w-full resize-none rounded-2xl border p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-              parseError ? 'border-red-400' : parsedData ? 'border-green-400' : 'border-gray-300'
+            className={`h-56 w-full resize-none rounded-2xl border bg-slate-800 p-4 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              parseError ? 'border-red-500' : parsedData ? 'border-emerald-500' : 'border-slate-700'
             }`}
           />
 
           <div className="mt-4">
-            <label className="mb-2 block text-sm font-medium text-slate-700">Hardcoded Resume Profile</label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Hardcoded Resume Profile</label>
             <select
               value={selectedProfileId}
               onChange={(event) => {
                 setSelectedProfileId(event.target.value)
                 setSaveStatus(null)
               }}
-              className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500"
+              className="h-12 w-full rounded-2xl border border-slate-700 bg-slate-800 px-4 text-sm text-slate-100 outline-none transition focus:border-indigo-500"
             >
               {RESUME_PROFILES.map((profile) => (
                 <option key={profile.id} value={profile.id}>
@@ -216,14 +216,14 @@ export default function ResumeGenerator() {
           </div>
 
           {parseError && (
-            <div className="mt-3 flex items-start gap-2 text-sm text-red-600">
+            <div className="mt-3 flex items-start gap-2 text-sm text-red-400">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{parseError}</span>
             </div>
           )}
 
           {parsedData && (
-            <div className="mt-3 flex items-center gap-2 text-sm text-green-700">
+            <div className="mt-3 flex items-center gap-2 text-sm text-emerald-400">
               <CheckCircle className="h-4 w-4 shrink-0" />
               <span>
                 Valid - {parsedData.workExperience.length} jobs, {Object.keys(parsedData.skills).length} skill categories
@@ -235,8 +235,8 @@ export default function ResumeGenerator() {
             onClick={parsedData ? handleReset : handleParse}
             className={`mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium transition-colors ${
               parsedData
-                ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                : 'bg-indigo-600 text-white hover:bg-indigo-500'
             }`}
           >
             {parsedData ? (
@@ -250,24 +250,24 @@ export default function ResumeGenerator() {
           </button>
         </div>
 
-        <div className="rounded-3xl border border-indigo-100 bg-indigo-50 p-5">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Hardcoded Profile</p>
-          <div className="space-y-1 text-sm text-indigo-950">
-            <p><span className="font-medium">Profile:</span> {selectedProfile.shortLabel}</p>
-            <p><span className="font-medium">Name:</span> {selectedProfile.personalInfo.name}</p>
-            <p><span className="font-medium">Phone:</span> {selectedProfile.personalInfo.phone}</p>
-            <p><span className="font-medium">Email:</span> {selectedProfile.personalInfo.email}</p>
-            <p><span className="font-medium">LinkedIn:</span> {selectedProfile.personalInfo.linkedin}</p>
-            <p><span className="font-medium">Education:</span> {selectedProfile.education.map((entry) => entry.school).join(' | ')}</p>
-            <p className="pt-2 text-xs leading-relaxed text-indigo-800">{selectedProfile.summary}</p>
+        <div className="rounded-3xl border border-indigo-900/50 bg-indigo-950/40 p-5">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-indigo-400">Hardcoded Profile</p>
+          <div className="space-y-1 text-sm text-indigo-200">
+            <p><span className="font-medium text-indigo-300">Profile:</span> {selectedProfile.shortLabel}</p>
+            <p><span className="font-medium text-indigo-300">Name:</span> {selectedProfile.personalInfo.name}</p>
+            <p><span className="font-medium text-indigo-300">Phone:</span> {selectedProfile.personalInfo.phone}</p>
+            <p><span className="font-medium text-indigo-300">Email:</span> {selectedProfile.personalInfo.email}</p>
+            <p><span className="font-medium text-indigo-300">LinkedIn:</span> {selectedProfile.personalInfo.linkedin}</p>
+            <p><span className="font-medium text-indigo-300">Education:</span> {selectedProfile.education.map((entry) => entry.school).join(' | ')}</p>
+            <p className="pt-2 text-xs leading-relaxed text-indigo-300/70">{selectedProfile.summary}</p>
             {selectedProfile.certifications.length > 0 && (
-              <p className="pt-2 text-xs leading-relaxed text-indigo-800">
-                <span className="font-semibold">Certifications:</span> {selectedProfile.certifications.map((item) => item.name).join(' | ')}
+              <p className="pt-2 text-xs leading-relaxed text-indigo-300/70">
+                <span className="font-semibold text-indigo-300">Certifications:</span> {selectedProfile.certifications.map((item) => item.name).join(' | ')}
               </p>
             )}
             {selectedProfile.clientProjects.length > 0 && (
-              <p className="pt-2 text-xs leading-relaxed text-indigo-800">
-                <span className="font-semibold">Client Projects:</span> {selectedProfile.clientProjects.join(' | ')}
+              <p className="pt-2 text-xs leading-relaxed text-indigo-300/70">
+                <span className="font-semibold text-indigo-300">Client Projects:</span> {selectedProfile.clientProjects.join(' | ')}
               </p>
             )}
           </div>
@@ -277,29 +277,29 @@ export default function ResumeGenerator() {
       <div className="space-y-6">
         {parsedData ? (
           <>
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-sm">
               <div className="px-6 py-6">
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">File Name</p>
-                    <p className="font-mono text-sm text-gray-800">{parsedData.resumeMeta.fileName}</p>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">File Name</p>
+                    <p className="font-mono text-sm text-slate-200">{parsedData.resumeMeta.fileName}</p>
                   </div>
                   <div className="text-right">
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Location</p>
-                    <p className="text-sm text-gray-800">{parsedData.contactLocation || 'Dallas, TX'}</p>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Location</p>
+                    <p className="text-sm text-slate-200">{parsedData.contactLocation || 'Dallas, TX'}</p>
                   </div>
                 </div>
 
                 {(company || role) && (
-                  <div className="flex flex-wrap gap-4 rounded-2xl bg-slate-50 p-3 text-sm">
+                  <div className="flex flex-wrap gap-4 rounded-2xl bg-slate-800 p-3 text-sm">
                     {company && (
                       <span>
-                        <span className="text-slate-500">Company:</span> <span className="font-medium">{company}</span>
+                        <span className="text-slate-500">Company:</span> <span className="font-medium text-slate-200">{company}</span>
                       </span>
                     )}
                     {role && (
                       <span>
-                        <span className="text-slate-500">Role:</span> <span className="font-medium">{role}</span>
+                        <span className="text-slate-500">Role:</span> <span className="font-medium text-slate-200">{role}</span>
                       </span>
                     )}
                   </div>
@@ -308,46 +308,46 @@ export default function ResumeGenerator() {
 
               <button
                 onClick={() => setShowPreview(!showPreview)}
-                className="flex w-full items-center justify-between border-t px-6 py-4 transition-colors hover:bg-slate-50"
+                className="flex w-full items-center justify-between border-t border-slate-800 px-6 py-4 transition-colors hover:bg-slate-800"
               >
-                <span className="font-medium text-gray-900">Content Preview</span>
+                <span className="font-medium text-slate-200">Content Preview</span>
                 {showPreview ? (
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                  <ChevronDown className="h-4 w-4 text-slate-500" />
                 ) : (
-                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                  <ChevronRight className="h-4 w-4 text-slate-500" />
                 )}
               </button>
 
               {showPreview && (
-                <div className="max-h-80 space-y-4 overflow-y-auto border-t bg-slate-50 px-6 py-4 text-sm">
+                <div className="max-h-80 space-y-4 overflow-y-auto border-t border-slate-800 bg-slate-800/50 px-6 py-4 text-sm">
                   <div>
-                    <p className="mb-1 text-xs font-bold uppercase text-gray-500">Summary</p>
-                    <p className="leading-relaxed text-gray-800">
+                    <p className="mb-1 text-xs font-bold uppercase text-slate-500">Summary</p>
+                    <p className="leading-relaxed text-slate-300">
                       {parsedData.professionalSummary.replace(/\*\*/g, '').slice(0, 220)}
                       {parsedData.professionalSummary.length > 220 ? '...' : ''}
                     </p>
                   </div>
 
                   <div>
-                    <p className="mb-1 text-xs font-bold uppercase text-gray-500">
+                    <p className="mb-1 text-xs font-bold uppercase text-slate-500">
                       Employment ({parsedData.workExperience.length} roles)
                     </p>
                     {parsedData.workExperience.map((experience, index) => (
-                      <p key={index} className="text-gray-800">
-                        <span className="font-medium">{experience.company}</span>
-                        {experience.position && <span className="text-gray-500"> - {experience.position}</span>}
-                        <span className="ml-2 text-xs text-gray-400">{experience.dates}</span>
+                      <p key={index} className="text-slate-300">
+                        <span className="font-medium text-slate-200">{experience.company}</span>
+                        {experience.position && <span className="text-slate-500"> - {experience.position}</span>}
+                        <span className="ml-2 text-xs text-slate-600">{experience.dates}</span>
                       </p>
                     ))}
                   </div>
 
                   <div>
-                    <p className="mb-1 text-xs font-bold uppercase text-gray-500">
+                    <p className="mb-1 text-xs font-bold uppercase text-slate-500">
                       Skills ({Object.keys(parsedData.skills).length} categories)
                     </p>
                     {Object.entries(parsedData.skills).slice(0, 3).map(([category, skills]) => (
-                      <p key={category} className="text-gray-700">
-                        <span className="font-medium">{category}:</span>{' '}
+                      <p key={category} className="text-slate-400">
+                        <span className="font-medium text-slate-300">{category}:</span>{' '}
                         {(Array.isArray(skills) ? skills : [skills]).slice(0, 5).join(', ')}
                         {Array.isArray(skills) && skills.length > 5 ? ` +${skills.length - 5} more` : ''}
                       </p>
@@ -358,8 +358,8 @@ export default function ResumeGenerator() {
             </div>
 
             <div className="space-y-3">
-              <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                <label className="mb-2 block text-sm font-medium text-slate-700">Job Description</label>
+              <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-sm">
+                <label className="mb-2 block text-sm font-medium text-slate-300">Job Description</label>
                 <textarea
                   value={jobDescription}
                   onChange={(event) => {
@@ -368,15 +368,15 @@ export default function ResumeGenerator() {
                     setSaveStatus(null)
                   }}
                   placeholder="Paste the job description here before saving to the dashboard."
-                  className={`h-40 w-full resize-none rounded-2xl border p-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500 ${
-                    jobDescriptionError ? 'border-red-400' : 'border-slate-300'
+                  className={`h-40 w-full resize-none rounded-2xl border bg-slate-800 p-4 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition focus:border-indigo-500 ${
+                    jobDescriptionError ? 'border-red-500' : 'border-slate-700'
                   }`}
                 />
                 <p className="mt-2 text-xs text-slate-500">
                   This is stored with the saved application so you can view the original JD later from the dashboard.
                 </p>
                 {jobDescriptionError && (
-                  <div className="mt-3 flex items-start gap-2 text-sm text-red-600">
+                  <div className="mt-3 flex items-start gap-2 text-sm text-red-400">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     <span>{jobDescriptionError}</span>
                   </div>
@@ -384,7 +384,7 @@ export default function ResumeGenerator() {
               </div>
 
               {downloadError && (
-                <div className="flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                <div className="flex items-center gap-2 rounded-2xl border border-red-800/50 bg-red-950/40 px-4 py-3 text-sm text-red-400">
                   <AlertCircle className="h-4 w-4 shrink-0" />
                   {downloadError}
                 </div>
@@ -393,7 +393,7 @@ export default function ResumeGenerator() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                   onClick={handleDownload}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3 font-medium text-white transition-colors hover:bg-blue-500"
                 >
                   <Download className="h-4 w-4" />
                   Download DOCX
@@ -401,7 +401,7 @@ export default function ResumeGenerator() {
 
                 <button
                   onClick={handleDownloadPdfFile}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 py-3 font-medium text-white transition-colors hover:bg-emerald-800"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 py-3 font-medium text-white transition-colors hover:bg-emerald-600"
                 >
                   <Download className="h-4 w-4" />
                   Download PDF File
@@ -413,12 +413,12 @@ export default function ResumeGenerator() {
                 disabled={saveStatus === 'saving' || saveStatus === 'saved'}
                 className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3 font-medium transition-colors ${
                   saveStatus === 'saved'
-                    ? 'cursor-default bg-green-100 text-green-700'
+                    ? 'cursor-default bg-emerald-900/40 text-emerald-400'
                     : saveStatus === 'error'
-                      ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                      ? 'bg-red-900/40 text-red-400 hover:bg-red-900/60'
                       : saveStatus === 'saving'
-                        ? 'cursor-not-allowed bg-gray-100 text-gray-500'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        ? 'cursor-not-allowed bg-slate-800 text-slate-500'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                 }`}
               >
                 {saveStatus === 'saved' ? (
@@ -440,10 +440,10 @@ export default function ResumeGenerator() {
             </div>
           </>
         ) : (
-          <div className="flex h-64 flex-col items-center justify-center rounded-3xl border border-dashed border-gray-300 bg-white p-8 text-center">
+          <div className="flex h-64 flex-col items-center justify-center rounded-3xl border border-dashed border-slate-700 bg-slate-900 p-8 text-center">
             <div className="mb-4 text-5xl">Document</div>
-            <p className="text-sm text-gray-500">
-              Paste your Claude JSON on the left and click <strong>Parse JSON</strong> to get started.
+            <p className="text-sm text-slate-400">
+              Paste your Claude JSON on the left and click <strong className="text-slate-200">Parse JSON</strong> to get started.
             </p>
           </div>
         )}

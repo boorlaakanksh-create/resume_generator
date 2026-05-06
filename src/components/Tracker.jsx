@@ -284,7 +284,7 @@ export default function Tracker() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center text-gray-500">
+      <div className="flex h-64 items-center justify-center text-slate-400">
         <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
         Loading dashboard...
       </div>
@@ -293,12 +293,12 @@ export default function Tracker() {
 
   if (error) {
     return (
-      <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-6 text-center">
-        <p className="mb-1 font-medium text-yellow-800">Application Dashboard Unavailable</p>
-        <p className="text-sm text-yellow-700">{error}</p>
+      <div className="rounded-3xl border border-yellow-800/50 bg-yellow-950/30 p-6 text-center">
+        <p className="mb-1 font-medium text-yellow-400">Application Dashboard Unavailable</p>
+        <p className="text-sm text-yellow-500">{error}</p>
         <button
           onClick={() => fetchApplications()}
-          className="mt-4 text-sm text-yellow-700 underline hover:text-yellow-900"
+          className="mt-4 text-sm text-yellow-500 underline hover:text-yellow-300"
         >
           Retry
         </button>
@@ -308,10 +308,10 @@ export default function Tracker() {
 
   if (applications.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-gray-300 bg-white h-64 flex flex-col items-center justify-center text-center p-8">
-        <BriefcaseIcon className="mb-4 h-10 w-10 text-gray-300" />
-        <p className="text-sm text-gray-500">No applications tracked yet.</p>
-        <p className="mt-1 text-xs text-gray-400">Saving from the Generate tab marks the job as applied.</p>
+      <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900 h-64 flex flex-col items-center justify-center text-center p-8">
+        <BriefcaseIcon className="mb-4 h-10 w-10 text-slate-600" />
+        <p className="text-sm text-slate-400">No applications tracked yet.</p>
+        <p className="mt-1 text-xs text-slate-500">Saving from the Generate tab marks the job as applied.</p>
       </div>
     )
   }
@@ -319,22 +319,22 @@ export default function Tracker() {
   return (
     <div className="space-y-8">
       {jobDescriptionModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
-          <div className="max-h-[80vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="max-h-[80vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-700 px-6 py-4">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900">Job Description</h3>
-                <p className="text-sm text-slate-500">{jobDescriptionModal.title}</p>
+                <h3 className="text-lg font-semibold text-white">Job Description</h3>
+                <p className="text-sm text-slate-400">{jobDescriptionModal.title}</p>
               </div>
               <button
                 onClick={() => setJobDescriptionModal({ open: false, title: '', content: '' })}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-slate-400 transition hover:bg-slate-800 hover:text-white"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="max-h-[60vh] overflow-y-auto px-6 py-5">
-              <pre className="whitespace-pre-wrap font-sans text-sm leading-6 text-slate-700">
+              <pre className="whitespace-pre-wrap font-sans text-sm leading-6 text-slate-300">
                 {jobDescriptionModal.content}
               </pre>
             </div>
@@ -344,65 +344,65 @@ export default function Tracker() {
 
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Activity Overview</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Activity Overview</p>
           <div className="relative">
             <select
               value={selectedProfileId}
               onChange={(e) => setSelectedProfileId(e.target.value)}
-              className="appearance-none cursor-pointer rounded-2xl border border-slate-200 bg-white py-2.5 pl-4 pr-10 text-sm font-medium text-slate-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="appearance-none cursor-pointer rounded-2xl border border-slate-700 bg-slate-800 py-2.5 pl-4 pr-10 text-sm font-medium text-slate-200 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             >
               {RESUME_PROFILES.map((profile) => (
                 <option key={profile.id} value={profile.id}>{profile.shortLabel}</option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           </div>
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {stats.map((stat) => (
-            <article key={stat.label} className="rounded-3xl bg-white px-6 py-5 shadow-[0_14px_35px_rgba(15,23,42,0.08)]">
-              <p className="text-sm font-semibold text-slate-700">{stat.label}</p>
+            <article key={stat.label} className="rounded-3xl border border-slate-800 bg-slate-900 px-6 py-5 shadow-[0_14px_35px_rgba(0,0,0,0.3)]">
+              <p className="text-sm font-semibold text-slate-300">{stat.label}</p>
               <div className="mt-3 flex items-end justify-between gap-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total</p>
-                  <p className={`mt-0.5 text-5xl font-bold tracking-tight ${stat.accent ? 'text-blue-600' : 'text-slate-900'}`}>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total</p>
+                  <p className={`mt-0.5 text-5xl font-bold tracking-tight ${stat.accent ? 'text-blue-400' : 'text-white'}`}>
                     {stat.value}
                   </p>
                 </div>
-                <div className="flex-shrink-0 rounded-2xl bg-indigo-50 px-4 py-2 text-right">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-indigo-400">Profile</p>
-                  <p className="mt-0.5 text-2xl font-bold text-indigo-600">{stat.profileValue}</p>
+                <div className="flex-shrink-0 rounded-2xl bg-indigo-900/30 px-4 py-2 text-right">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-indigo-500">Profile</p>
+                  <p className="mt-0.5 text-2xl font-bold text-indigo-400">{stat.profileValue}</p>
                 </div>
               </div>
-              <p className="mt-2 text-sm text-slate-600">{stat.subtitle}</p>
+              <p className="mt-2 text-sm text-slate-500">{stat.subtitle}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="rounded-3xl border border-emerald-200 bg-emerald-50 px-6 py-5 text-emerald-800 shadow-sm">
+      <section className="rounded-3xl border border-emerald-800/40 bg-emerald-950/30 px-6 py-5 text-emerald-400 shadow-sm">
         <p className="text-sm font-medium">
           Saved resumes are treated as applied jobs. Use the DOCX button on each row to download the submitted version again.
         </p>
       </section>
 
-      <section className="rounded-[2rem] bg-white p-6 shadow-[0_22px_50px_rgba(15,23,42,0.10)]">
+      <section className="rounded-[2rem] border border-slate-800 bg-slate-900 p-6 shadow-[0_22px_50px_rgba(0,0,0,0.3)]">
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900">Filter &amp; Search</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="text-3xl font-bold tracking-tight text-white">Filter &amp; Search</h2>
+            <p className="mt-1 text-sm text-slate-400">
               Narrow applications by applied date, recent activity, or company and role keywords.
             </p>
             {totalCount > applications.length && (
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-slate-600">
                 Filters and search apply to the {applications.length} loaded rows. Load more to expand the browser dataset.
               </p>
             )}
           </div>
           <button
             onClick={() => fetchApplications()}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-400 hover:border-slate-600 hover:text-white transition"
           >
             <RefreshCw className="h-4 w-4" />
             Refresh
@@ -411,19 +411,19 @@ export default function Tracker() {
 
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end">
-            <label className="flex flex-col gap-2 text-sm text-slate-700">
+            <label className="flex flex-col gap-2 text-sm text-slate-300">
               <span className="font-medium">Date</span>
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(event) => setSelectedDate(event.target.value)}
-                className="h-12 rounded-2xl border border-slate-300 px-4 text-sm outline-none transition focus:border-blue-500"
+                className="h-12 rounded-2xl border border-slate-700 bg-slate-800 px-4 text-sm text-slate-200 outline-none transition focus:border-blue-500 [color-scheme:dark]"
               />
             </label>
 
             <button
               onClick={() => setSelectedDate('')}
-              className="h-12 rounded-2xl bg-slate-200 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-300"
+              className="h-12 rounded-2xl bg-slate-700 px-5 text-sm font-semibold text-slate-200 transition hover:bg-slate-600"
             >
               Clear Date
             </button>
@@ -435,8 +435,8 @@ export default function Tracker() {
                   onClick={() => setActiveFilter(option.id)}
                   className={`h-12 rounded-2xl px-5 text-sm font-semibold transition ${
                     activeFilter === option.id
-                      ? 'bg-slate-800 text-white'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
                 >
                   {option.label}
@@ -453,18 +453,18 @@ export default function Tracker() {
             className="flex w-full max-w-xl gap-3"
           >
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
               <input
                 type="search"
                 value={searchInput}
                 onChange={(event) => setSearchInput(event.target.value)}
                 placeholder="Search jobs..."
-                className="h-12 w-full rounded-2xl border border-slate-300 pl-11 pr-4 text-sm outline-none transition focus:border-blue-500"
+                className="h-12 w-full rounded-2xl border border-slate-700 bg-slate-800 pl-11 pr-4 text-sm text-slate-200 placeholder:text-slate-600 outline-none transition focus:border-blue-500"
               />
             </div>
             <button
               type="submit"
-              className="h-12 rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 px-6 text-sm font-semibold text-white transition hover:from-blue-700 hover:to-sky-600"
+              className="h-12 rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 px-6 text-sm font-semibold text-white transition hover:from-blue-500 hover:to-sky-400"
             >
               Search
             </button>
@@ -475,15 +475,15 @@ export default function Tracker() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">Applications</h2>
-            <p className="text-sm text-slate-500">
+            <h2 className="text-2xl font-bold text-white">Applications</h2>
+            <p className="text-sm text-slate-400">
               Showing {filteredApplications.length} filtered result{filteredApplications.length === 1 ? '' : 's'} from {applications.length} loaded application{applications.length === 1 ? '' : 's'} ({totalCount} total).
             </p>
           </div>
         </div>
 
         {filteredApplications.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-8 py-12 text-center text-slate-500">
+          <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900 px-8 py-12 text-center text-slate-400">
             No applications match the current filters.
           </div>
         ) : (
@@ -491,22 +491,22 @@ export default function Tracker() {
             {filteredApplications.map((application) => (
               <article
                 key={application.id}
-                className="rounded-3xl border border-slate-200 bg-white px-6 py-5 shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
+                className="rounded-3xl border border-slate-700/50 bg-slate-900 px-6 py-5 shadow-[0_12px_30px_rgba(0,0,0,0.25)]"
               >
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="text-xl font-semibold text-slate-900">
+                      <span className="text-xl font-semibold text-white">
                         {application.company || 'Unknown Company'}
                       </span>
                       {application.role && (
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+                        <span className="rounded-full bg-slate-800 px-3 py-1 text-sm font-medium text-slate-300">
                           {application.role}
                         </span>
                       )}
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500">
-                      <span className="font-mono text-xs text-slate-400">{application.fileName}</span>
+                      <span className="font-mono text-xs text-slate-600">{application.fileName}</span>
                       {application.profileLabel && <span>{application.profileLabel}</span>}
                       <span>Applied {formatDate(application.date)}</span>
                     </div>
@@ -516,7 +516,7 @@ export default function Tracker() {
                     <button
                       onClick={() => handleRedownload(application)}
                       disabled={downloadingId === application.id}
-                      className="inline-flex h-11 items-center gap-2 rounded-2xl bg-blue-50 px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"
+                      className="inline-flex h-11 items-center gap-2 rounded-2xl bg-blue-900/30 px-4 text-sm font-semibold text-blue-400 transition hover:bg-blue-900/50 disabled:opacity-50"
                     >
                       <Download className="h-4 w-4" />
                       {downloadingId === application.id ? 'Downloading...' : 'Download DOCX'}
@@ -525,7 +525,7 @@ export default function Tracker() {
                     <button
                       onClick={() => handleRedownloadPdfFile(application)}
                       disabled={downloadingPdfFileId === application.id}
-                      className="inline-flex h-11 items-center gap-2 rounded-2xl bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-50"
+                      className="inline-flex h-11 items-center gap-2 rounded-2xl bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
                     >
                       <Download className="h-4 w-4" />
                       {downloadingPdfFileId === application.id ? 'Building...' : 'PDF File'}
@@ -534,7 +534,7 @@ export default function Tracker() {
                     <button
                       onClick={() => handleViewJobDescription(application)}
                       disabled={viewingJdId === application.id || !application.hasJobDescription}
-                      className="inline-flex h-11 items-center gap-2 rounded-2xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-11 items-center gap-2 rounded-2xl bg-slate-800 px-4 text-sm font-semibold text-slate-300 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Eye className="h-4 w-4" />
                       {viewingJdId === application.id ? 'Loading JD...' : 'View JD'}
@@ -543,7 +543,7 @@ export default function Tracker() {
                     <button
                       onClick={() => handleDelete(application.id)}
                       disabled={deletingId === application.id}
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-2xl text-slate-400 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-2xl text-slate-500 transition hover:bg-red-900/30 hover:text-red-400 disabled:opacity-50"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -557,7 +557,7 @@ export default function Tracker() {
                 <button
                   onClick={() => fetchApplications({ cursor: nextCursor || 0, append: true })}
                   disabled={loadingMore}
-                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-300 px-6 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-700 px-6 text-sm font-semibold text-slate-400 transition hover:border-slate-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {loadingMore ? 'Loading more...' : 'Load More'}
                 </button>
