@@ -430,6 +430,36 @@ const docxService = {
     const rightColumnX = pageWidth - marginRight
     let cursorY = 44
 
+    const buildRichLines = (text, maxWidth, size = 11) => {
+      const segments = parseFormattedText(text || '')
+      const allTokens = []
+      segments.forEach(({ text: segText, bold }) => {
+        segText.split(/(\s+)/).forEach(part => {
+          if (!part.length) return
+          doc.setFont('times', bold ? 'bold' : 'normal')
+          doc.setFontSize(size)
+          allTokens.push({ text: part, bold, isSpace: /^\s+$/.test(part), width: doc.getTextWidth(part) })
+        })
+      })
+      const lines = []
+      let cur = []
+      let curW = 0
+      allTokens.forEach(tok => {
+        if (tok.isSpace) {
+          if (cur.length > 0) { cur.push(tok); curW += tok.width }
+        } else if (curW + tok.width > maxWidth && cur.length > 0) {
+          while (cur.length && cur[cur.length - 1].isSpace) cur.pop()
+          lines.push(cur)
+          cur = [tok]; curW = tok.width
+        } else {
+          cur.push(tok); curW += tok.width
+        }
+      })
+      while (cur.length && cur[cur.length - 1].isSpace) cur.pop()
+      if (cur.length) lines.push(cur)
+      return lines
+    }
+
     const ensureSpace = (heightNeeded = 24) => {
       if (cursorY + heightNeeded <= pageHeight - bottomMargin) return
       doc.addPage()
@@ -446,16 +476,32 @@ const docxService = {
       before = 0,
       after = 0
     } = {}) => {
-      const safeText = buildPlainText(text || '')
-      if (!safeText) return
-
+      if (!text) return
       cursorY += before
-      doc.setFont('times', style)
       doc.setFontSize(size)
-      const lines = doc.splitTextToSize(safeText, width)
-      ensureSpace(lines.length * lineHeight + after)
-      doc.text(lines, x, cursorY, { align, maxWidth: width })
-      cursorY += lines.length * lineHeight + after
+      if (style === 'bold') {
+        doc.setFont('times', 'bold')
+        const lines = doc.splitTextToSize(buildPlainText(text), width)
+        ensureSpace(lines.length * lineHeight + after)
+        doc.text(lines, x, cursorY, { align, maxWidth: width })
+        cursorY += lines.length * lineHeight + after
+        return
+      }
+      const richLines = buildRichLines(text, width, size)
+      ensureSpace(richLines.length * lineHeight + after)
+      richLines.forEach((line, li) => {
+        const y = cursorY + li * lineHeight
+        let rx = x
+        if (align === 'center') { const tw = line.reduce((s, t) => s + t.width, 0); rx = x + (width - tw) / 2 }
+        else if (align === 'right') { const tw = line.reduce((s, t) => s + t.width, 0); rx = x + width - tw }
+        line.forEach(({ text: t, bold, width: tw }) => {
+          doc.setFont('times', bold ? 'bold' : 'normal')
+          doc.setFontSize(size)
+          doc.text(t, rx, y)
+          rx += tw
+        })
+      })
+      cursorY += richLines.length * lineHeight + after
     }
 
     const drawSectionHeader = (text) => {
@@ -484,14 +530,25 @@ const docxService = {
     }
 
     const drawBullets = (items) => {
+      const size = 11
+      const lineH = 14
       items.forEach((item) => {
-        const lines = doc.splitTextToSize(buildPlainText(item), contentWidth - 16)
-        ensureSpace(lines.length * 14 + 4)
+        const richLines = buildRichLines(item, contentWidth - 16, size)
+        ensureSpace(richLines.length * lineH + 4)
         doc.setFont('times', 'normal')
-        doc.setFontSize(11)
+        doc.setFontSize(size)
         doc.text('-', marginLeft + 4, cursorY)
-        doc.text(lines, marginLeft + 14, cursorY)
-        cursorY += lines.length * 14 + 2
+        richLines.forEach((line, li) => {
+          let x = marginLeft + 14
+          const y = cursorY + li * lineH
+          line.forEach(({ text: t, bold, width: tw }) => {
+            doc.setFont('times', bold ? 'bold' : 'normal')
+            doc.setFontSize(size)
+            doc.text(t, x, y)
+            x += tw
+          })
+        })
+        cursorY += richLines.length * lineH + 2
       })
       cursorY += 4
     }
@@ -532,7 +589,7 @@ const docxService = {
       drawSectionHeader('TECHNICAL SKILLS')
       Object.entries(resumeData.skills).forEach(([category, skills]) => {
         const skillText = Array.isArray(skills) ? skills.join(', ') : skills
-        drawWrappedText(`${category}: ${skillText}`, { lineHeight: 14, after: 2 })
+        drawWrappedText(`**${category}**: ${skillText}`, { lineHeight: 14, after: 2 })
       })
     }
 

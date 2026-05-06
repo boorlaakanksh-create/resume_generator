@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BriefcaseIcon, Download, Eye, RefreshCw, Search, Trash2, X } from 'lucide-react'
-import { DEFAULT_PROFILE_ID, getProfileById } from '../data/profiles'
+import { BriefcaseIcon, ChevronDown, Download, Eye, RefreshCw, Search, Trash2, X } from 'lucide-react'
+import { DEFAULT_PROFILE_ID, RESUME_PROFILES, getProfileById } from '../data/profiles'
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -69,6 +69,7 @@ export default function Tracker() {
   const [activeFilter, setActiveFilter] = useState('all')
   const [searchInput, setSearchInput] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedProfileId, setSelectedProfileId] = useState('data-engineer-4yr')
 
   const loadDocxService = useCallback(async () => {
     const module = await import('../services/docxService')
@@ -247,34 +248,39 @@ export default function Tracker() {
   }, [activeFilter, applications, searchTerm, selectedDate])
 
   const stats = useMemo(() => {
-    const last24Hours = countSince(applications, 1)
-    const last7Days = countSince(applications, 7)
-    const last30Days = countSince(applications, 30)
+    const profileApps = applications.filter((a) => a.profileId === selectedProfileId)
+    const last24 = countSince(applications, 1)
+    const last7 = countSince(applications, 7)
+    const last30 = countSince(applications, 30)
 
     return [
       {
         label: 'Last 24 Hours',
-        value: last24Hours,
-        subtitle: `${last24Hours} application${last24Hours === 1 ? '' : 's'} submitted`
+        value: last24,
+        profileValue: countSince(profileApps, 1),
+        subtitle: `${last24} application${last24 === 1 ? '' : 's'} submitted`
       },
       {
         label: 'Last 7 Days',
-        value: last7Days,
-        subtitle: `~${Math.round(last7Days / 7 || 0)} per day average`
+        value: last7,
+        profileValue: countSince(profileApps, 7),
+        subtitle: `~${Math.round(last7 / 7 || 0)} per day average`
       },
       {
         label: 'Last 30 Days',
-        value: last30Days,
-        subtitle: `~${Math.round(last30Days / 4 || 0)} per week average`
+        value: last30,
+        profileValue: countSince(profileApps, 30),
+        subtitle: `~${Math.round(last30 / 4 || 0)} per week average`
       },
       {
         label: 'Total',
         value: totalCount,
+        profileValue: profileApps.length,
         subtitle: 'all-time applications',
         accent: true
       }
     ]
-  }, [applications, totalCount])
+  }, [applications, totalCount, selectedProfileId])
 
   if (loading) {
     return (
@@ -336,16 +342,43 @@ export default function Tracker() {
         </div>
       )}
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => (
-          <article key={stat.label} className="rounded-3xl bg-white px-6 py-5 shadow-[0_14px_35px_rgba(15,23,42,0.08)]">
-            <p className="text-sm font-semibold text-slate-700">{stat.label}</p>
-            <p className={`mt-3 text-5xl font-bold tracking-tight ${stat.accent ? 'text-blue-600' : 'text-slate-900'}`}>
-              {stat.value}
-            </p>
-            <p className="mt-2 text-sm text-slate-600">{stat.subtitle}</p>
-          </article>
-        ))}
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Activity Overview</p>
+          <div className="relative">
+            <select
+              value={selectedProfileId}
+              onChange={(e) => setSelectedProfileId(e.target.value)}
+              className="appearance-none cursor-pointer rounded-2xl border border-slate-200 bg-white py-2.5 pl-4 pr-10 text-sm font-medium text-slate-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            >
+              {RESUME_PROFILES.map((profile) => (
+                <option key={profile.id} value={profile.id}>{profile.shortLabel}</option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          </div>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {stats.map((stat) => (
+            <article key={stat.label} className="rounded-3xl bg-white px-6 py-5 shadow-[0_14px_35px_rgba(15,23,42,0.08)]">
+              <p className="text-sm font-semibold text-slate-700">{stat.label}</p>
+              <div className="mt-3 flex items-end justify-between gap-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total</p>
+                  <p className={`mt-0.5 text-5xl font-bold tracking-tight ${stat.accent ? 'text-blue-600' : 'text-slate-900'}`}>
+                    {stat.value}
+                  </p>
+                </div>
+                <div className="flex-shrink-0 rounded-2xl bg-indigo-50 px-4 py-2 text-right">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-indigo-400">Profile</p>
+                  <p className="mt-0.5 text-2xl font-bold text-indigo-600">{stat.profileValue}</p>
+                </div>
+              </div>
+              <p className="mt-2 text-sm text-slate-600">{stat.subtitle}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="rounded-3xl border border-emerald-200 bg-emerald-50 px-6 py-5 text-emerald-800 shadow-sm">

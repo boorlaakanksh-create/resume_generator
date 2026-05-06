@@ -93,15 +93,15 @@ export default function App() {
       <header className="sticky top-0 z-10 bg-white/90 shadow-sm backdrop-blur">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-gray-900">Bhargav Resume Generator</h1>
-            <p className="text-xs text-gray-500">Paste JSON from Claude - generate polished DOCX resumes</p>
+            <h1 className="text-lg font-bold text-gray-900">Resume Generator</h1>
+            <p className="text-xs text-gray-500">JSON to DOCX / PDF</p>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="hidden items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 md:flex">
               <ShieldCheck className="h-4 w-4 text-emerald-600" />
               <div className="leading-tight">
-                <p className="font-medium text-slate-900">{currentUser?.email}</p>
+                <p className="font-medium text-slate-900">Saibhargav Karne</p>
                 <p className="text-xs text-slate-500">Signed in</p>
               </div>
             </div>
