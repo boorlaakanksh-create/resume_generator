@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BriefcaseIcon, Download, Eye, RefreshCw, Search, Trash2, X } from 'lucide-react'
-import docxService from '../services/docxService'
 import { DEFAULT_PROFILE_ID, getProfileById } from '../data/profiles'
 
 function formatDate(iso) {
@@ -56,7 +55,11 @@ const FILTER_OPTIONS = [
 export default function Tracker() {
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState('')
+  const [hasMore, setHasMore] = useState(false)
+  const [nextCursor, setNextCursor] = useState(null)
+  const [totalCount, setTotalCount] = useState(0)
   const [deletingId, setDeletingId] = useState(null)
   const [downloadingId, setDownloadingId] = useState(null)
   const [downloadingPdfFileId, setDownloadingPdfFileId] = useState(null)
@@ -67,20 +70,43 @@ export default function Tracker() {
   const [searchInput, setSearchInput] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
 
-  const fetchApplications = useCallback(async () => {
-    setLoading(true)
-    setError('')
+  const loadDocxService = useCallback(async () => {
+    const module = await import('../services/docxService')
+    return module.default
+  }, [])
+
+  const fetchApplications = useCallback(async ({ cursor = 0, append = false } = {}) => {
+    if (append) {
+      setLoadingMore(true)
+    } else {
+      setLoading(true)
+      setError('')
+    }
 
     try {
-      const res = await fetch('/api/tracker')
+      const res = await fetch(`/api/tracker?limit=25&cursor=${cursor}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
-      setApplications(data)
+      const items = Array.isArray(data.items) ? data.items : []
+
+      setApplications((prev) => {
+        if (!append) return items
+
+        const existingIds = new Set(prev.map((application) => application.id))
+        return [...prev, ...items.filter((application) => !existingIds.has(application.id))]
+      })
+      setHasMore(Boolean(data.hasMore))
+      setNextCursor(data.nextCursor ?? null)
+      setTotalCount(typeof data.total === 'number' ? data.total : items.length)
     } catch (err) {
       setError('Could not load the dashboard. Make sure you are running on Vercel with Redis configured.')
       console.error(err)
     } finally {
-      setLoading(false)
+      if (append) {
+        setLoadingMore(false)
+      } else {
+        setLoading(false)
+      }
     }
   }, [])
 
@@ -94,6 +120,7 @@ export default function Tracker() {
     try {
       await fetch(`/api/tracker?id=${id}`, { method: 'DELETE' })
       setApplications((prev) => prev.filter((application) => application.id !== id))
+      setTotalCount((prev) => Math.max(prev - 1, 0))
     } catch {
       // keep the current list if deletion fails
     } finally {
@@ -105,7 +132,7 @@ export default function Tracker() {
     setDownloadingId(application.id)
 
     try {
-      const res = await fetch(`/api/tracker?id=${application.id}`)
+      const res = await fetch(`/api/tracker?id=${application.id}&fields=resume`)
       if (!res.ok) throw new Error('Fetch failed')
       const full = await res.json()
 
@@ -125,6 +152,7 @@ export default function Tracker() {
         certifications: selectedProfile.certifications
       }
 
+      const docxService = await loadDocxService()
       await docxService.generateResume(resumeData, parsed.resumeMeta?.fileName || application.fileName)
     } catch (err) {
       console.error('Re-download failed:', err)
@@ -137,7 +165,7 @@ export default function Tracker() {
     setDownloadingPdfFileId(application.id)
 
     try {
-      const res = await fetch(`/api/tracker?id=${application.id}`)
+      const res = await fetch(`/api/tracker?id=${application.id}&fields=resume`)
       if (!res.ok) throw new Error('Fetch failed')
       const full = await res.json()
 
@@ -157,6 +185,7 @@ export default function Tracker() {
         certifications: selectedProfile.certifications
       }
 
+      const docxService = await loadDocxService()
       await docxService.generateResumePdfFile(resumeData, parsed.resumeMeta?.fileName || application.fileName)
     } catch (err) {
       console.error('PDF file download failed:', err)
@@ -169,7 +198,7 @@ export default function Tracker() {
     setViewingJdId(application.id)
 
     try {
-      const res = await fetch(`/api/tracker?id=${application.id}`)
+      const res = await fetch(`/api/tracker?id=${application.id}&fields=jd`)
       if (!res.ok) throw new Error('Fetch failed')
       const full = await res.json()
       setJobDescriptionModal({
@@ -240,12 +269,12 @@ export default function Tracker() {
       },
       {
         label: 'Total',
-        value: applications.length,
+        value: totalCount,
         subtitle: 'all-time applications',
         accent: true
       }
     ]
-  }, [applications])
+  }, [applications, totalCount])
 
   if (loading) {
     return (
@@ -262,7 +291,7 @@ export default function Tracker() {
         <p className="mb-1 font-medium text-yellow-800">Application Dashboard Unavailable</p>
         <p className="text-sm text-yellow-700">{error}</p>
         <button
-          onClick={fetchApplications}
+          onClick={() => fetchApplications()}
           className="mt-4 text-sm text-yellow-700 underline hover:text-yellow-900"
         >
           Retry
@@ -332,9 +361,14 @@ export default function Tracker() {
             <p className="mt-1 text-sm text-slate-500">
               Narrow applications by applied date, recent activity, or company and role keywords.
             </p>
+            {totalCount > applications.length && (
+              <p className="mt-1 text-xs text-slate-400">
+                Filters and search apply to the {applications.length} loaded rows. Load more to expand the browser dataset.
+              </p>
+            )}
           </div>
           <button
-            onClick={fetchApplications}
+            onClick={() => fetchApplications()}
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:border-slate-300 hover:text-slate-900"
           >
             <RefreshCw className="h-4 w-4" />
@@ -410,7 +444,7 @@ export default function Tracker() {
           <div>
             <h2 className="text-2xl font-bold text-slate-900">Applications</h2>
             <p className="text-sm text-slate-500">
-              Showing {filteredApplications.length} of {applications.length} saved application{applications.length === 1 ? '' : 's'}.
+              Showing {filteredApplications.length} filtered result{filteredApplications.length === 1 ? '' : 's'} from {applications.length} loaded application{applications.length === 1 ? '' : 's'} ({totalCount} total).
             </p>
           </div>
         </div>
@@ -484,6 +518,18 @@ export default function Tracker() {
                 </div>
               </article>
             ))}
+
+            {hasMore && (
+              <div className="flex justify-center pt-2">
+                <button
+                  onClick={() => fetchApplications({ cursor: nextCursor || 0, append: true })}
+                  disabled={loadingMore}
+                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-300 px-6 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {loadingMore ? 'Loading more...' : 'Load More'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </section>

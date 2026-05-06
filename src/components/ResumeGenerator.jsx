@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, Download, RotateCcw, Save } from 'lucide-react'
-import docxService from '../services/docxService'
 import { DEFAULT_PROFILE_ID, getProfileById, RESUME_PROFILES } from '../data/profiles'
 
 function camelToSpaces(str) {
@@ -29,6 +28,22 @@ export default function ResumeGenerator() {
   const [downloadError, setDownloadError] = useState('')
 
   const selectedProfile = getProfileById(selectedProfileId)
+
+  const loadDocxService = async () => {
+    const module = await import('../services/docxService')
+    return module.default
+  }
+
+  const buildStoredResumeJson = () => ({
+    resumeMeta: {
+      fileName: parsedData.resumeMeta.fileName
+    },
+    contactLocation: parsedData.contactLocation || '',
+    jobTitle: parsedData.jobTitle || '',
+    professionalSummary: parsedData.professionalSummary,
+    skills: parsedData.skills,
+    workExperience: parsedData.workExperience
+  })
 
   const handleParse = () => {
     setParseError('')
@@ -88,6 +103,7 @@ export default function ResumeGenerator() {
     setDownloadError('')
 
     try {
+      const docxService = await loadDocxService()
       await docxService.generateResume(buildResumeData(), parsedData.resumeMeta.fileName)
     } catch (err) {
       console.error(err)
@@ -99,6 +115,7 @@ export default function ResumeGenerator() {
     setDownloadError('')
 
     try {
+      const docxService = await loadDocxService()
       await docxService.generateResumePdfFile(buildResumeData(), parsedData.resumeMeta.fileName)
     } catch (err) {
       console.error(err)
@@ -127,7 +144,7 @@ export default function ResumeGenerator() {
           role,
           profileId: selectedProfile.id,
           profileLabel: selectedProfile.label,
-          resumeJson: parsedData,
+          resumeJson: buildStoredResumeJson(),
           jobDescription
         })
       })

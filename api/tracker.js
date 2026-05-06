@@ -17,6 +17,12 @@ function buildMetadata(record) {
   }
 }
 
+function parseLimit(value) {
+  const parsed = Number.parseInt(value, 10)
+  if (Number.isNaN(parsed)) return 25
+  return Math.min(Math.max(parsed, 1), 100)
+}
+
 async function readMetadataRecord(id) {
   const metadata = await redis.get(`appmeta:${id}`)
   if (metadata) return parseStoredValue(metadata)
@@ -40,19 +46,84 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    const { id } = req.query
+    const { id, cursor, limit, fields } = req.query
 
     if (id) {
+      if (fields === 'jd') {
+        const storedJobDescription = await redis.get(`appjd:${id}`)
+        if (typeof storedJobDescription === 'string') {
+          return res.status(200).json({ jobDescription: storedJobDescription })
+        }
+
+        const legacyRecord = await redis.get(`app:${id}`)
+        if (!legacyRecord) return res.status(404).json({ error: 'Not found' })
+
+        const parsedLegacyRecord = parseStoredValue(legacyRecord)
+        return res.status(200).json({ jobDescription: parsedLegacyRecord.jobDescription || '' })
+      }
+
+      if (fields === 'resume') {
+        const [metadata, resumeJson] = await Promise.all([
+          readMetadataRecord(id),
+          redis.get(`appresume:${id}`)
+        ])
+
+        if (metadata && resumeJson) {
+          return res.status(200).json({
+            id: metadata.id,
+            fileName: metadata.fileName,
+            profileId: metadata.profileId,
+            profileLabel: metadata.profileLabel,
+            resumeJson: parseStoredValue(resumeJson)
+          })
+        }
+
+        const legacyRecord = await redis.get(`app:${id}`)
+        if (!legacyRecord) return res.status(404).json({ error: 'Not found' })
+
+        const parsedLegacyRecord = parseStoredValue(legacyRecord)
+        return res.status(200).json({
+          id: parsedLegacyRecord.id,
+          fileName: parsedLegacyRecord.fileName,
+          profileId: parsedLegacyRecord.profileId,
+          profileLabel: parsedLegacyRecord.profileLabel,
+          resumeJson: parsedLegacyRecord.resumeJson
+        })
+      }
+
       const record = await redis.get(`app:${id}`)
       if (!record) return res.status(404).json({ error: 'Not found' })
       return res.status(200).json(parseStoredValue(record))
     }
 
-    const ids = await redis.lrange('app:index', 0, -1)
-    if (!ids || ids.length === 0) return res.status(200).json([])
+    const pageLimit = parseLimit(limit)
+    const startIndex = Math.max(Number.parseInt(cursor, 10) || 0, 0)
+    const endIndex = startIndex + pageLimit - 1
+
+    const [ids, total] = await Promise.all([
+      redis.lrange('app:index', startIndex, endIndex),
+      redis.llen('app:index')
+    ])
+
+    if (!ids || ids.length === 0) {
+      return res.status(200).json({
+        items: [],
+        total,
+        nextCursor: null,
+        hasMore: false
+      })
+    }
 
     const metadata = await Promise.all(ids.map((recordId) => readMetadataRecord(recordId)))
-    return res.status(200).json(metadata.filter(Boolean))
+    const items = metadata.filter(Boolean)
+    const nextCursor = startIndex + ids.length
+
+    return res.status(200).json({
+      items,
+      total,
+      nextCursor: nextCursor < total ? nextCursor : null,
+      hasMore: nextCursor < total
+    })
   }
 
   if (req.method === 'POST') {
@@ -74,13 +145,10 @@ export default async function handler(req, res) {
       date,
       hasJobDescription: Boolean(jobDescription?.trim())
     }
-    const fullRecord = {
-      ...metadataRecord,
-      jobDescription: jobDescription || '',
-      resumeJson
+    await redis.set(`appresume:${id}`, JSON.stringify(resumeJson))
+    if (jobDescription?.trim()) {
+      await redis.set(`appjd:${id}`, jobDescription)
     }
-
-    await redis.set(`app:${id}`, JSON.stringify(fullRecord))
     await redis.set(`appmeta:${id}`, JSON.stringify(metadataRecord))
     await redis.lpush('app:index', id)
 
@@ -92,6 +160,8 @@ export default async function handler(req, res) {
     if (!id) return res.status(400).json({ error: 'id is required' })
 
     await redis.del(`app:${id}`)
+    await redis.del(`appresume:${id}`)
+    await redis.del(`appjd:${id}`)
     await redis.del(`appmeta:${id}`)
     await redis.lrem('app:index', 0, id)
 
