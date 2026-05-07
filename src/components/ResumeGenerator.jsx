@@ -256,23 +256,26 @@ export default function ResumeGenerator() {
           </div>
 
           {showOriginalCompanyToggle && (
-            <label className="mt-4 flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-              <input
-                type="checkbox"
-                checked={useOriginalCompany}
-                onChange={(event) => {
-                  setUseOriginalCompany(event.target.checked)
-                  setSaveStatus(null)
-                }}
-                className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500"
-              />
+            <div className="mt-4 flex items-start justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
               <div>
                 <p className="text-sm font-medium text-slate-200">Use original recent company</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
                   When enabled, the most recent company in the parsed resume is hard-set to {ORIGINAL_COMPANY_NAME} and the JSON company value for the first role is ignored.
                 </p>
               </div>
-            </label>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={useOriginalCompany}
+                onClick={() => {
+                  setUseOriginalCompany((prev) => !prev)
+                  setSaveStatus(null)
+                }}
+                className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${useOriginalCompany ? 'bg-emerald-500' : 'bg-slate-700'}`}
+              >
+                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${useOriginalCompany ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
           )}
 
           {parseError && (
