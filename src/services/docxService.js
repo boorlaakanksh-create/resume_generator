@@ -542,7 +542,7 @@ const docxService = {
         ensureSpace(richLines.length * lineH + 4)
         doc.setFont('times', 'normal')
         doc.setFontSize(size)
-        doc.text('-', marginLeft + 4, cursorY)
+        doc.text('•', marginLeft + 4, cursorY)
         richLines.forEach((line, li) => {
           let x = marginLeft + 14
           const y = cursorY + li * lineH
