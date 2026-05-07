@@ -85,9 +85,9 @@ The following are fixed facts. They go directly into the JSON output as-is. **Ne
 ## 🤖 WHAT CLAUDE GENERATES (tailor these to every JD)
 
 - `professionalSummary` — rewritten for each JD (3–5 sentences, specific tools + metrics)
-- `skills` — all JD tools included, categories ordered by JD priority
+- `skills` — all JD tools included, categories ordered by JD priority and detected mode
 - `jobTitle` — exact title from JD (must be a Power Platform / D365 variant)
-- `achievements` arrays — bullet points for each role (rewritten to align with JD keywords and tools)
+- `achievements` arrays — bullet points for each role (rewritten to align with JD keywords, tools, and detected mode)
 - `contactLocation` — JD city if specified, otherwise `"Dallas, TX"`
 - `resumeMeta.fileName` — based on target company and role
 
@@ -128,6 +128,40 @@ The resume must read like someone who owns solutions end-to-end and delivers bus
 - Every tool, framework, platform, methodology, domain keyword
 - Responsibilities and the verbs the JD uses
 
+---
+
+### STEP 1.5 — DETECT JD FOCUS MODE ⚠️ (Do this before anything else)
+
+Identify the JD's primary technology emphasis. This single decision controls the summary angle, skills ordering, and which bullets to write throughout the entire resume.
+
+| Mode | JD Signals |
+|---|---|
+| **D365_ONLY** | JD requires D365 CE, Sales module, Customer Service module, Marketing module, CRM customization, C# plugins, workflow activities, Business Process Flows, FetchXML, Model-Driven Apps, Dataverse CRM schema — and does **NOT** list Canvas Apps or standalone Power Automate as primary deliverables |
+| **POWER_APPS_ONLY** | JD requires Canvas Apps, Power Automate (Cloud & Desktop), Power Pages, Power Fx, custom connectors, Power Platform ALM — and does **NOT** list D365 CRM modules, plugin development, or CRM customization as primary deliverables |
+| **MIXED** | JD explicitly requires **both** D365/CRM customization **and** Power Apps/Canvas/Power Automate development |
+
+**If D365_ONLY — apply these rules throughout the entire resume:**
+- Summary opens with D365 CE, Model-Driven Apps, Dataverse, C# plugins, CRM customization — do NOT lead with Canvas Apps or standalone Power Automate
+- Skills section leads with Dynamics 365 CE modules (Sales, Customer Service, Marketing), Model-Driven Apps, Business Process Flows, Dataverse, FetchXML, plugins
+- Bullets emphasize: Model-Driven App development, C# plugin design, Business Process Flows, entity/form/view customization, Dataverse security model, FetchXML/OData queries, D365 module integrations
+- Only mention Canvas Apps or Power Automate where they naturally support a D365 solution — never as the primary focus of a bullet
+- Frame all Dataverse work through the CRM lens: entity schema, BPF, security roles, views, forms
+
+**If POWER_APPS_ONLY — apply these rules throughout the entire resume:**
+- Summary opens with Canvas Apps, Power Automate Cloud & Desktop, Power Pages, Power Fx, custom connectors, Dataverse as a data platform — do NOT open with D365 CE, CRM modules, or plugin development
+- Skills section leads with Power Platform tools (Canvas Apps, Power Automate, Power Pages, Power Fx, AI Builder, Copilot Studio, custom connectors, Power BI)
+- Bullets emphasize: Canvas App architecture and performance optimization (delegation, preloaded collections), multi-level Power Automate approval flows, Power Automate Desktop automation, custom API connectors, SAP/SharePoint/Azure integrations via Power Platform, ALM across Dev/Test/Prod
+- Only mention D365 CE or plugins where they naturally support the Power Platform solution
+- Frame Dataverse as the Power Platform data layer, not as CRM database
+
+**If MIXED — apply these rules throughout the entire resume:**
+- Distribute D365 and Power Platform tools proportionally across all roles
+- Summary covers both skill sets equally — no one stack dominates
+- Skills list both as co-primary categories
+- Balance CRM customization bullets and Power Apps development bullets across roles
+
+---
+
 ### STEP 2 — KEYWORD COVERAGE (MANDATORY)
 **EVERY JD keyword MUST appear:**
 - In Work Experience (naturally, in context)
@@ -136,14 +170,14 @@ The resume must read like someone who owns solutions end-to-end and delivers bus
 Missing keyword = FAIL. Add it.
 
 ### STEP 3 — SMART DISTRIBUTION
-Spread tools across all four roles — do NOT dump everything in one role:
+Spread tools across all four roles based on the detected mode:
 - **Kraft Heinz → PRIMARY** (heaviest JD alignment — most current, most relevant)
-- **Microsoft → SECONDARY** (enterprise scale, complex Power Platform + Azure)
-- **Accenture → SUPPORTING** (D365, Dataverse, Power BI, Canvas + Model-Driven)
-- **Airen Technologies → FOUNDATIONAL** (security, compliance, hybrid app patterns)
+- **Microsoft → SECONDARY** (enterprise scale — Power Platform + Azure + D365 CE)
+- **Accenture → SUPPORTING** (D365 Marketing Model-Driven App + Canvas App + Power BI + SAP integration)
+- **Airen Technologies → FOUNDATIONAL** (hybrid Canvas + Model-Driven, security, compliance, Power Fx)
 
 ### STEP 4 — KEYWORD DENSITY
-- Core JD tools (Power Automate, Canvas Apps, Dataverse, D365) → 2–4 mentions each
+- Core JD tools → 2–4 mentions each across the resume
 - Secondary tools → 1–2 mentions
 - Niche/rare tools → at least 1 mention
 
@@ -165,10 +199,36 @@ Every bullet must contain:
 ### BAD BULLET ❌
 > Built apps using Power Apps and Power Automate
 
+---
+
+### MODE-SPECIFIC BULLET FOCUS
+
+**D365_ONLY mode — write bullets that emphasize:**
+
+| Role | Focus areas |
+|---|---|
+| Kraft Heinz | Dataverse entity and schema design, multi-level approval workflows as BPF-equivalent, D365-compatible automation, SAP + REST API integrations, ALM/DevOps, managed solution deployment |
+| Microsoft | SLOP Model-Driven App customization, C# plugins for data integrity and Dataverse sync, OData/FetchXML queries for delegation, Contract Coverage Dataverse security roles and field-level permissions, entity/view/form design |
+| Accenture | Adidas D365 Marketing Model-Driven App — lead-to-opportunity lifecycle, custom Dataverse entities + relationships + business rules, truck delivery within Sales module, C# plugins for opportunity stage automation and SLA breach alerts |
+| Airen Technologies | Model-Driven App for back-office loan approvals, Dataverse role-based security and field-level permissions, business rules, Power Automate as workflow automation embedded in D365 context |
+
+**POWER_APPS_ONLY mode — write bullets that emphasize:**
+
+| Role | Focus areas |
+|---|---|
+| Kraft Heinz | Canvas App architecture for PO lifecycle management, Power Automate Cloud flows for multi-level approvals with conditional logic, Power Automate Desktop for SAP data sync, custom connectors for SAP + SharePoint + Azure, $1M+ quarter savings, ALM across Dev/Test/Prod |
+| Microsoft | SLOP Canvas App (200+ active users, 60% workload reduction, 40+ second performance improvement via delegation and preloaded collections), Power Automate approval flows and notifications, Contract Coverage Canvas App with custom API connectors, Azure Functions and Logic Apps integration |
+| Accenture | Adidas Retail Tracker Canvas App with embedded Power BI dashboards (40% load time improvement), Power Automate automated low-stock and below-target alerts, SAP + Dataverse real-time data integration, ALM across Dev/Test/Prod |
+| Airen Technologies | Hybrid Canvas App for KYC and loan processing (front-office), Power Fx dynamic form logic for high-performance UX, Power Automate loan approval notifications via Outlook + REST APIs, SharePoint document integration, Dataverse role-based and field-level security |
+
+**MIXED mode:** Write bullets that naturally cover both D365 CRM and Power Platform capabilities — distribute so both stacks are represented across all four roles.
+
+---
+
 ### BULLET COUNT PER ROLE
 - Kraft Heinz: 5–7 bullets
-- Microsoft: 5–7 bullets (can split across Project 1 and Project 2 context)
-- Accenture: 4–6 bullets
+- Microsoft: 5–7 bullets (draw from both SLOP and Contract Coverage)
+- Accenture: 4–6 bullets (draw from both Adidas Retail Tracker and Adidas D365 Marketing)
 - Airen Technologies: 3–5 bullets
 
 ---
@@ -176,9 +236,9 @@ Every bullet must contain:
 ## BOLD FORMATTING RULES (MANDATORY)
 
 Every bullet must contain bold text. Bold every:
-- JD-required tool, platform, or framework: `**Power Automate**`, `**Canvas Apps**`, `**Dataverse**`
+- JD-required tool, platform, or framework: `**Power Automate**`, `**Canvas Apps**`, `**Dataverse**`, `**D365 CE**`
 - Metric or scale: `**$1M+**`, `**200+ users**`, `**60%**`, `**40+ seconds**`
-- Important JD terminology: `**ALM**`, `**approval workflows**`, `**governance**`
+- Important JD terminology: `**ALM**`, `**approval workflows**`, `**Business Process Flows**`, `**governance**`
 
 Max 3–4 bold items per bullet. Zero bold = automatic rewrite.
 
@@ -190,19 +250,23 @@ When the JD asks for tools not explicitly named in the profile, map them:
 
 | JD asks for... | Map from profile... |
 |---|---|
-| Power Pages / Portals | Canvas App + Dataverse external patterns (Contract Coverage, Airen) |
-| Model-Driven Apps | Adidas D365 Marketing App + Airen back-office MDA |
+| Power Pages / Portals | Canvas App + Dataverse external access patterns (Contract Coverage, Airen) |
+| Model-Driven Apps | Adidas D365 Marketing App (full MDA) + Airen back-office MDA |
 | Azure Logic Apps | Microsoft Contract Coverage — Azure Logic Apps explicitly used |
-| D365 Sales / Customer Service | Adidas D365 Marketing lead-to-opportunity lifecycle |
-| PCF Controls | D365 CE customization and form scripting patterns |
-| Copilot Studio / AI Builder | Power Platform AI automation + intelligent workflow context |
-| Power Desktop flows | Kraft Heinz PO Management — Power Automate Desktop flows explicitly used |
-| SAP Integration | Kraft Heinz SAP + SharePoint + Azure pipelines |
-| Power BI | Adidas Retail Tracker — Power BI embedded dashboards |
-| ALM / DevOps | Kraft Heinz and Accenture — Dev/Test/Prod ALM explicitly owned |
+| D365 Sales / Customer Service | Adidas D365 Marketing — lead-to-opportunity lifecycle + truck delivery in Sales module |
+| PCF Controls | D365 CE form customization and JavaScript web resource patterns |
+| Copilot Studio / AI Builder | Power Platform intelligent automation + workflow context |
+| Power Automate Desktop | Kraft Heinz PO Management — Desktop flows explicitly used |
+| SAP Integration | Kraft Heinz — SAP + SharePoint + Azure via custom connectors and REST APIs |
+| Power BI | Accenture Adidas Retail Tracker — embedded Power BI dashboards |
+| ALM / DevOps / Managed Solutions | Kraft Heinz + Accenture — Dev/Test/Prod ALM explicitly owned |
 | Custom Connectors | Kraft Heinz + Microsoft Contract Coverage — custom connectors explicitly built |
 | Power Fx | Airen Technologies — Power Fx advanced logic explicitly implemented |
-| C# Plugins | Microsoft SLOP + Adidas D365 — C# plugins explicitly developed |
+| C# Plugins | Microsoft SLOP + Accenture Adidas D365 — C# plugins explicitly developed |
+| Business Process Flows (BPF) | Accenture Adidas D365 Marketing — lead-to-opportunity stage progression |
+| FetchXML / OData | Microsoft Contract Coverage — OData APIs; delegation patterns across roles |
+| Dataverse Security / Field-Level Permissions | Microsoft Contract Coverage + Airen Technologies — explicitly implemented |
+| Approval Workflows | Kraft Heinz PO Management — multi-level approval with conditional logic |
 
 ---
 
@@ -210,30 +274,61 @@ When the JD asks for tools not explicitly named in the profile, map them:
 
 Include **100% of JD tools**. JD tools listed **first** within each category.
 
-Suggested categories (adjust per JD):
+### MODE-SPECIFIC SKILL CATEGORY ORDERING
+
+**D365_ONLY mode — lead with these categories:**
+- **Dynamics 365:** D365 CE, Sales Module, Customer Service Module, Marketing Module, Model-Driven Apps, Business Process Flows, Dataverse, FetchXML, Security Roles, Field Security Profiles, Rollup/Calculated Fields
+- **Development & Customization:** C# Plugins, Custom Workflow Activities, JavaScript, PCF Controls, Ribbon Customization, Form & View Customization, Liquid Templates
+- **Integration & APIs:** REST APIs, OData, Azure Functions, Azure Logic Apps, Custom Connectors, SAP Integration, SharePoint Online
+- **ALM & DevOps:** Azure DevOps, Power Platform CLI, Managed Solutions, Environment Strategy, CI/CD Pipelines, Connection References, Environment Variables
+- **Power Platform (supporting):** Canvas Apps, Power Automate, Power BI, Power Pages, Power Fx, AI Builder
+
+**POWER_APPS_ONLY mode — lead with these categories:**
+- **Power Platform:** Canvas Apps, Power Automate (Cloud & Desktop), Power Pages, Power Fx, AI Builder, Copilot Studio, Power BI, Custom Connectors
+- **Dataverse & Integration:** Microsoft Dataverse, SharePoint Online, SAP Integration, REST APIs, Azure Functions, Azure Logic Apps, OData
+- **Development & Customization:** C# Plugins, JavaScript, TypeScript, PCF Controls, Custom Workflow Activities, Ribbon Customization
+- **ALM & DevOps:** Azure DevOps, Power Platform CLI, Managed Solutions, Environment Strategy, CI/CD Pipelines, Connection References, Environment Variables
+- **Dynamics 365 (supporting):** D365 CE, Model-Driven Apps, Business Process Flows, Security Roles
+
+**MIXED mode — balance both as co-primary categories:**
 - **Power Platform:** Canvas Apps, Model-Driven Apps, Power Automate (Cloud & Desktop), Power Pages, Power BI, Copilot Studio, AI Builder, Power Fx
 - **Dynamics 365:** D365 CE, D365 Sales, D365 Customer Service, D365 Marketing, Business Process Flows, Dataverse
 - **Development & Customization:** C# Plugins, JavaScript, TypeScript, PCF Controls, Custom Workflow Activities, Ribbon Customization, FetchXML, Liquid Templates
 - **Integration & APIs:** REST APIs, Custom Connectors, Azure Logic Apps, Azure Functions, OData, SAP Integration, SharePoint Online
-- **DevOps & ALM:** Azure DevOps, Power Platform CLI, Managed Solutions, Environment Strategy, CI/CD Pipelines, Connection References, Environment Variables
-- **Data & Reporting:** SQL Server, Microsoft Dataverse, SSIS, SSRS, Power BI, Row-Level Security (RLS)
+- **ALM & DevOps:** Azure DevOps, Power Platform CLI, Managed Solutions, Environment Strategy, CI/CD Pipelines, Connection References, Environment Variables
+- **Data & Reporting:** SQL Server, Microsoft Dataverse, Power BI, Row-Level Security (RLS)
 - **Cloud & Identity:** Azure Active Directory, Azure Service Bus, Application Insights, Microsoft 365, Teams Integration
 
 ---
 
 ## 🔥 PROFESSIONAL SUMMARY
 
-**Structure (3–5 sentences):**
-1. Years of experience + exact JD role title + 2–3 core JD tools
-2. Key metric or project impact from the fixed profile
-3. Platform ownership / solution delivery statement
-4. Business value / cross-functional collaboration statement
+**Structure:** 3–5 sentences tailored to the JD and detected mode.
 
-**Always include (Power Platform signals):**
-- "enterprise Power Platform solutions"
-- "business process automation"
-- "low-code / no-code"
-- "cross-functional stakeholders"
+### MODE-SPECIFIC SUMMARY STRUCTURE
+
+**D365_ONLY:**
+1. Years of experience + exact JD role title + D365 CE, Dataverse, Model-Driven Apps, C# plugins
+2. Technical depth: Business Process Flows, entity/form customization, plugin architecture, JavaScript web resources
+3. Integration and platform statement: REST APIs, Azure Functions, Logic Apps within D365 context
+4. Business impact: CRM transformation, operational efficiency, enterprise user adoption
+
+**POWER_APPS_ONLY:**
+1. Years of experience + exact JD role title + Canvas Apps, Power Automate (Cloud & Desktop), Power Pages, Power Fx
+2. Technical depth: multi-level approval workflows, Power Automate Desktop automation, custom connectors, SAP/SharePoint/Azure integrations
+3. Platform ownership: Dataverse modeling, ALM across Dev/Test/Prod, performance optimization (delegation, collections)
+4. Business impact: $1M+/quarter savings, 60% workload reduction, 200+ active users, 40% data load improvement
+
+**MIXED:**
+1. Years of experience + exact JD title + both D365 CE and Power Platform tools
+2. D365 technical depth + Power Platform delivery capabilities
+3. Integration, performance, and ALM statement
+4. Business impact with real metrics
+
+**Always include:**
+- D365_ONLY: "enterprise Dynamics 365 solutions", "business process automation", "cross-functional stakeholders"
+- POWER_APPS_ONLY: "enterprise Power Platform solutions", "business process automation", "low-code / no-code", "cross-functional stakeholders"
+- MIXED: both "enterprise Dynamics 365" and "enterprise Power Platform", "business process automation", "cross-functional stakeholders"
 
 **Bold** 2–4 key technologies or metrics. Tone: confident, direct, solution-owner.
 
@@ -243,6 +338,10 @@ Suggested categories (adjust per JD):
 
 | Check | Pass? |
 |---|---|
+| JD focus mode detected (D365_ONLY / POWER_APPS_ONLY / MIXED) | ✔ / ❌ |
+| Summary angle matches detected mode | ✔ / ❌ |
+| Skills section leads with correct mode category | ✔ / ❌ |
+| Bullets match detected mode emphasis per role | ✔ / ❌ |
 | All JD keywords in work experience | ✔ / ❌ |
 | All JD tools in skills section | ✔ / ❌ |
 | Each role has 3–5 JD tools, naturally placed | ✔ / ❌ |
@@ -283,7 +382,7 @@ Return ONLY this JSON — no explanation, no preamble:
   },
   "contactLocation": "Dallas, TX",
   "jobTitle": "Exact Power Platform / D365 Job Title from JD",
-  "professionalSummary": "3–5 sentence paragraph tailored to JD...",
+  "professionalSummary": "3–5 sentence paragraph tailored to JD and detected mode...",
   "skills": {
     "Power Platform": ["Canvas Apps", "Power Automate", "..."],
     "Dynamics 365": ["D365 CE", "..."]
