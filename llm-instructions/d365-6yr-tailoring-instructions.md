@@ -91,6 +91,14 @@ The following are fixed facts. They go directly into the JSON output as-is. **Ne
 - `contactLocation` — JD city if specified, otherwise `"Dallas, TX"`
 - `resumeMeta.fileName` — based on target company and role
 
+### ORIGINAL COMPANY OVERRIDE
+
+If the user explicitly instructs **"use original company"**, **"keep original company"**, or equivalent wording, the first work experience company must remain **Kraft Heinz**.
+
+- Ignore any alternative company naming implied by the JD when this override is requested
+- The first work experience `company` must stay **Kraft Heinz**
+- This override applies only when the user explicitly requests it
+
 ---
 
 ## 🎯 CORE OBJECTIVE
@@ -366,6 +374,9 @@ Any ❌ → regenerate that section before producing output.
 - ❌ Never add Education, Certifications, or Projects sections (handled by the application)
 - ❌ Never include contact info in output
 - ❌ Never truncate output
+- ❌ Never use `"Remote"` as `contactLocation`
+- ❌ Never include `"Remote"` as any work `location`
+- ✔ If the JD is remote-only or does not specify a city, use `"Dallas, TX"` for `contactLocation`
 - ✔ Target ~3 pages equivalent (4–6 bullets per role)
 - ❌ `jobTitle` must always be a Power Platform or D365 variant
 

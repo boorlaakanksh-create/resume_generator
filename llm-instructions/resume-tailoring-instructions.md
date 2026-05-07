@@ -53,6 +53,14 @@ If the company you are applying to appears anywhere in the table, **skip it** an
 
 **Selection rule:** Pick the **first** company in the matching row that ≠ the JD's target company.
 
+### STEP 1.6 — ORIGINAL COMPANY OVERRIDE
+
+If the user explicitly instructs **"use original company"**, **"keep original company"**, or equivalent wording, override domain matching for the current role and use **Kraft Heinz** as the first work experience company.
+
+- Do **not** apply the domain mapping table for the current role company when this override is requested
+- The first work experience `company` must be **Kraft Heinz**
+- This override applies only when the user explicitly requests it
+
 | Domain | Company Options (priority order — skip any that match the target) |
 |---|---|
 | Healthcare & Life Sciences | UnitedHealth Group, Elevance Health, HCA Healthcare |
@@ -240,6 +248,9 @@ Max 3–4 bold items per bullet. A bullet with **zero bold text** = automatic re
 - ❌ Never add Projects, Certifications, or Education sections
 - ❌ Never include contact info in output
 - ❌ Never truncate output
+- ❌ Never use `"Remote"` as `contactLocation`
+- ❌ Never include `"Remote"` as any work `location`
+- ✔ If the JD is remote-only or does not specify a city, use `"Dallas, TX"` for `contactLocation`
 - ✔ Target ~3 pages equivalent (4–6 bullets per role)
 - ❌ **Never describe Saibhargav as an Architect, Team Lead, Engineering Manager, Tech Lead, or people manager** — he is a hands-on individual contributor Data Engineer
 - ❌ **Never use "Architected" as a verb in any bullet** — even as an action verb it implies solution/enterprise architect ownership. Use "Built", "Engineered", "Designed", or "Developed" instead

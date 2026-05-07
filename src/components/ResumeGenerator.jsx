@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, Download, RotateCcw, Save } from 'lucide-react'
 import { DEFAULT_PROFILE_ID, getProfileById, RESUME_PROFILES } from '../data/profiles'
+
+const ORIGINAL_COMPANY_NAME = 'Kraft Heinz'
+const ORIGINAL_COMPANY_PROFILE_ID = 'data-engineer-4yr'
 
 function camelToSpaces(str) {
   return str.replace(/([A-Z])/g, ' $1').trim()
@@ -16,10 +19,25 @@ function parseFileName(fileName) {
   }
 }
 
+function applyOriginalCompanyOverride(data, enabled) {
+  if (!data) return null
+  if (!enabled || !Array.isArray(data.workExperience) || data.workExperience.length === 0) return data
+
+  return {
+    ...data,
+    workExperience: data.workExperience.map((experience, index) => (
+      index === 0
+        ? { ...experience, company: ORIGINAL_COMPANY_NAME }
+        : experience
+    ))
+  }
+}
+
 export default function ResumeGenerator() {
   const [rawJson, setRawJson] = useState('')
   const [jobDescription, setJobDescription] = useState('')
   const [selectedProfileId, setSelectedProfileId] = useState(DEFAULT_PROFILE_ID)
+  const [useOriginalCompany, setUseOriginalCompany] = useState(false)
   const [parseError, setParseError] = useState('')
   const [jobDescriptionError, setJobDescriptionError] = useState('')
   const [parsedData, setParsedData] = useState(null)
@@ -28,6 +46,17 @@ export default function ResumeGenerator() {
   const [downloadError, setDownloadError] = useState('')
 
   const selectedProfile = getProfileById(selectedProfileId)
+  const showOriginalCompanyToggle = selectedProfile.id === ORIGINAL_COMPANY_PROFILE_ID
+
+  const effectiveParsedData = useMemo(
+    () => applyOriginalCompanyOverride(parsedData, showOriginalCompanyToggle && useOriginalCompany),
+    [parsedData, showOriginalCompanyToggle, useOriginalCompany]
+  )
+
+  const hasParsedData = Boolean(effectiveParsedData)
+  const hasJobDescription = Boolean(jobDescription.trim())
+  const canDownload = hasParsedData
+  const canSave = hasParsedData && hasJobDescription && saveStatus !== 'saving' && saveStatus !== 'saved'
 
   const loadDocxService = async () => {
     const module = await import('../services/docxService')
@@ -36,18 +65,30 @@ export default function ResumeGenerator() {
 
   const buildStoredResumeJson = () => ({
     resumeMeta: {
-      fileName: parsedData.resumeMeta.fileName
+      fileName: effectiveParsedData.resumeMeta.fileName
     },
-    contactLocation: parsedData.contactLocation || '',
-    jobTitle: parsedData.jobTitle || '',
-    professionalSummary: parsedData.professionalSummary,
-    skills: parsedData.skills,
-    workExperience: parsedData.workExperience
+    contactLocation: effectiveParsedData.contactLocation || '',
+    jobTitle: effectiveParsedData.jobTitle || '',
+    professionalSummary: effectiveParsedData.professionalSummary,
+    skills: effectiveParsedData.skills,
+    workExperience: effectiveParsedData.workExperience
+  })
+
+  const buildResumeData = () => ({
+    personalInfo: selectedProfile.personalInfo,
+    contactLocation: effectiveParsedData.contactLocation || 'Dallas, TX',
+    jobTitle: effectiveParsedData.jobTitle || '',
+    summary: effectiveParsedData.professionalSummary,
+    skills: effectiveParsedData.skills,
+    experience: effectiveParsedData.workExperience,
+    education: selectedProfile.education,
+    certifications: selectedProfile.certifications
   })
 
   const handleParse = () => {
     setParseError('')
     setSaveStatus(null)
+    setDownloadError('')
 
     if (!rawJson.trim()) {
       setParseError('Paste your JSON from Claude first.')
@@ -88,23 +129,13 @@ export default function ResumeGenerator() {
     }
   }
 
-  const buildResumeData = () => ({
-    personalInfo: selectedProfile.personalInfo,
-    contactLocation: parsedData.contactLocation || 'Dallas, TX',
-    jobTitle: parsedData.jobTitle || '',
-    summary: parsedData.professionalSummary,
-    skills: parsedData.skills,
-    experience: parsedData.workExperience,
-    education: selectedProfile.education,
-    certifications: selectedProfile.certifications
-  })
-
   const handleDownload = async () => {
+    if (!canDownload) return
     setDownloadError('')
 
     try {
       const docxService = await loadDocxService()
-      await docxService.generateResume(buildResumeData(), parsedData.resumeMeta.fileName)
+      await docxService.generateResume(buildResumeData(), effectiveParsedData.resumeMeta.fileName)
     } catch (err) {
       console.error(err)
       setDownloadError('Failed to generate DOCX. Please try again.')
@@ -112,11 +143,12 @@ export default function ResumeGenerator() {
   }
 
   const handleDownloadPdfFile = async () => {
+    if (!canDownload) return
     setDownloadError('')
 
     try {
       const docxService = await loadDocxService()
-      await docxService.generateResumePdfFile(buildResumeData(), parsedData.resumeMeta.fileName)
+      await docxService.generateResumePdfFile(buildResumeData(), effectiveParsedData.resumeMeta.fileName)
     } catch (err) {
       console.error(err)
       setDownloadError('Failed to generate direct PDF download. Please try again.')
@@ -124,7 +156,9 @@ export default function ResumeGenerator() {
   }
 
   const handleSaveToTracker = async () => {
-    if (!jobDescription.trim()) {
+    if (!hasParsedData) return
+
+    if (!hasJobDescription) {
       setJobDescriptionError('Job description is required before saving to the dashboard.')
       setSaveStatus('error')
       return
@@ -132,14 +166,14 @@ export default function ResumeGenerator() {
 
     setJobDescriptionError('')
     setSaveStatus('saving')
-    const { company, role } = parseFileName(parsedData.resumeMeta.fileName)
+    const { company, role } = parseFileName(effectiveParsedData.resumeMeta.fileName)
 
     try {
       const res = await fetch('/api/tracker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fileName: parsedData.resumeMeta.fileName,
+          fileName: effectiveParsedData.resumeMeta.fileName,
           company,
           role,
           profileId: selectedProfile.id,
@@ -159,6 +193,7 @@ export default function ResumeGenerator() {
   const handleReset = () => {
     setRawJson('')
     setJobDescription('')
+    setUseOriginalCompany(false)
     setParseError('')
     setJobDescriptionError('')
     setParsedData(null)
@@ -166,7 +201,11 @@ export default function ResumeGenerator() {
     setDownloadError('')
   }
 
-  const { company, role } = parsedData ? parseFileName(parsedData.resumeMeta.fileName) : {}
+  const fileName = effectiveParsedData?.resumeMeta?.fileName || 'Resume details will appear here after parsing.'
+  const location = effectiveParsedData?.contactLocation || 'Dallas, TX'
+  const { company, role } = hasParsedData
+    ? parseFileName(effectiveParsedData.resumeMeta.fileName)
+    : { company: '', role: '' }
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -182,15 +221,16 @@ export default function ResumeGenerator() {
             onChange={(event) => {
               setRawJson(event.target.value)
               setParseError('')
+              setSaveStatus(null)
+              setDownloadError('')
 
               if (parsedData) {
                 setParsedData(null)
-                setSaveStatus(null)
               }
             }}
             placeholder='{ "resumeMeta": { "fileName": "Karne_Saibhargav_Company_Role" }, ... }'
             className={`h-56 w-full resize-none rounded-2xl border bg-slate-800 p-4 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-              parseError ? 'border-red-500' : parsedData ? 'border-emerald-500' : 'border-slate-700'
+              parseError ? 'border-red-500' : hasParsedData ? 'border-emerald-500' : 'border-slate-700'
             }`}
           />
 
@@ -215,6 +255,26 @@ export default function ResumeGenerator() {
             </p>
           </div>
 
+          {showOriginalCompanyToggle && (
+            <label className="mt-4 flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+              <input
+                type="checkbox"
+                checked={useOriginalCompany}
+                onChange={(event) => {
+                  setUseOriginalCompany(event.target.checked)
+                  setSaveStatus(null)
+                }}
+                className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500"
+              />
+              <div>
+                <p className="text-sm font-medium text-slate-200">Use original recent company</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  When enabled, the most recent company in the parsed resume is hard-set to {ORIGINAL_COMPANY_NAME} and the JSON company value for the first role is ignored.
+                </p>
+              </div>
+            </label>
+          )}
+
           {parseError && (
             <div className="mt-3 flex items-start gap-2 text-sm text-red-400">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -222,24 +282,24 @@ export default function ResumeGenerator() {
             </div>
           )}
 
-          {parsedData && (
+          {hasParsedData && (
             <div className="mt-3 flex items-center gap-2 text-sm text-emerald-400">
               <CheckCircle className="h-4 w-4 shrink-0" />
               <span>
-                Valid - {parsedData.workExperience.length} jobs, {Object.keys(parsedData.skills).length} skill categories
+                Valid - {effectiveParsedData.workExperience.length} jobs, {Object.keys(effectiveParsedData.skills).length} skill categories
               </span>
             </div>
           )}
 
           <button
-            onClick={parsedData ? handleReset : handleParse}
+            onClick={hasParsedData ? handleReset : handleParse}
             className={`mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium transition-colors ${
-              parsedData
+              hasParsedData
                 ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                 : 'bg-indigo-600 text-white hover:bg-indigo-500'
             }`}
           >
-            {parsedData ? (
+            {hasParsedData ? (
               <>
                 <RotateCcw className="h-4 w-4" />
                 Reset
@@ -275,178 +335,190 @@ export default function ResumeGenerator() {
       </div>
 
       <div className="space-y-6">
-        {parsedData ? (
-          <>
-            <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-sm">
-              <div className="px-6 py-6">
-                <div className="mb-4 flex items-start justify-between gap-4">
-                  <div>
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">File Name</p>
-                    <p className="font-mono text-sm text-slate-200">{parsedData.resumeMeta.fileName}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Location</p>
-                    <p className="text-sm text-slate-200">{parsedData.contactLocation || 'Dallas, TX'}</p>
-                  </div>
-                </div>
-
-                {(company || role) && (
-                  <div className="flex flex-wrap gap-4 rounded-2xl bg-slate-800 p-3 text-sm">
-                    {company && (
-                      <span>
-                        <span className="text-slate-500">Company:</span> <span className="font-medium text-slate-200">{company}</span>
-                      </span>
-                    )}
-                    {role && (
-                      <span>
-                        <span className="text-slate-500">Role:</span> <span className="font-medium text-slate-200">{role}</span>
-                      </span>
-                    )}
-                  </div>
-                )}
+        <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-sm">
+          <div className="px-6 py-6">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">File Name</p>
+                <p className={`font-mono text-sm ${hasParsedData ? 'text-slate-200' : 'text-slate-500'}`}>{fileName}</p>
               </div>
-
-              <button
-                onClick={() => setShowPreview(!showPreview)}
-                className="flex w-full items-center justify-between border-t border-slate-800 px-6 py-4 transition-colors hover:bg-slate-800"
-              >
-                <span className="font-medium text-slate-200">Content Preview</span>
-                {showPreview ? (
-                  <ChevronDown className="h-4 w-4 text-slate-500" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 text-slate-500" />
-                )}
-              </button>
-
-              {showPreview && (
-                <div className="max-h-80 space-y-4 overflow-y-auto border-t border-slate-800 bg-slate-800/50 px-6 py-4 text-sm">
-                  <div>
-                    <p className="mb-1 text-xs font-bold uppercase text-slate-500">Summary</p>
-                    <p className="leading-relaxed text-slate-300">
-                      {parsedData.professionalSummary.replace(/\*\*/g, '').slice(0, 220)}
-                      {parsedData.professionalSummary.length > 220 ? '...' : ''}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="mb-1 text-xs font-bold uppercase text-slate-500">
-                      Employment ({parsedData.workExperience.length} roles)
-                    </p>
-                    {parsedData.workExperience.map((experience, index) => (
-                      <p key={index} className="text-slate-300">
-                        <span className="font-medium text-slate-200">{experience.company}</span>
-                        {experience.position && <span className="text-slate-500"> - {experience.position}</span>}
-                        <span className="ml-2 text-xs text-slate-600">{experience.dates}</span>
-                      </p>
-                    ))}
-                  </div>
-
-                  <div>
-                    <p className="mb-1 text-xs font-bold uppercase text-slate-500">
-                      Skills ({Object.keys(parsedData.skills).length} categories)
-                    </p>
-                    {Object.entries(parsedData.skills).slice(0, 3).map(([category, skills]) => (
-                      <p key={category} className="text-slate-400">
-                        <span className="font-medium text-slate-300">{category}:</span>{' '}
-                        {(Array.isArray(skills) ? skills : [skills]).slice(0, 5).join(', ')}
-                        {Array.isArray(skills) && skills.length > 5 ? ` +${skills.length - 5} more` : ''}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div className="text-right">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Location</p>
+                <p className={`text-sm ${hasParsedData ? 'text-slate-200' : 'text-slate-500'}`}>{location}</p>
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-sm">
-                <label className="mb-2 block text-sm font-medium text-slate-300">Job Description</label>
-                <textarea
-                  value={jobDescription}
-                  onChange={(event) => {
-                    setJobDescription(event.target.value)
-                    setJobDescriptionError('')
-                    setSaveStatus(null)
-                  }}
-                  placeholder="Paste the job description here before saving to the dashboard."
-                  className={`h-40 w-full resize-none rounded-2xl border bg-slate-800 p-4 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition focus:border-indigo-500 ${
-                    jobDescriptionError ? 'border-red-500' : 'border-slate-700'
-                  }`}
-                />
-                <p className="mt-2 text-xs text-slate-500">
-                  This is stored with the saved application so you can view the original JD later from the dashboard.
-                </p>
-                {jobDescriptionError && (
-                  <div className="mt-3 flex items-start gap-2 text-sm text-red-400">
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>{jobDescriptionError}</span>
-                  </div>
+            {(company || role) ? (
+              <div className="flex flex-wrap gap-4 rounded-2xl bg-slate-800 p-3 text-sm">
+                {company && (
+                  <span>
+                    <span className="text-slate-500">Company:</span> <span className="font-medium text-slate-200">{company}</span>
+                  </span>
+                )}
+                {role && (
+                  <span>
+                    <span className="text-slate-500">Role:</span> <span className="font-medium text-slate-200">{role}</span>
+                  </span>
                 )}
               </div>
-
-              {downloadError && (
-                <div className="flex items-center gap-2 rounded-2xl border border-red-800/50 bg-red-950/40 px-4 py-3 text-sm text-red-400">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  {downloadError}
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <button
-                  onClick={handleDownload}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3 font-medium text-white transition-colors hover:bg-blue-500"
-                >
-                  <Download className="h-4 w-4" />
-                  Download DOCX
-                </button>
-
-                <button
-                  onClick={handleDownloadPdfFile}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 py-3 font-medium text-white transition-colors hover:bg-emerald-600"
-                >
-                  <Download className="h-4 w-4" />
-                  Download PDF File
-                </button>
+            ) : (
+              <div className="rounded-2xl bg-slate-800 p-3 text-sm text-slate-500">
+                Parse JSON to populate file details and resume metadata.
               </div>
-
-              <button
-                onClick={handleSaveToTracker}
-                disabled={saveStatus === 'saving' || saveStatus === 'saved'}
-                className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3 font-medium transition-colors ${
-                  saveStatus === 'saved'
-                    ? 'cursor-default bg-emerald-900/40 text-emerald-400'
-                    : saveStatus === 'error'
-                      ? 'bg-red-900/40 text-red-400 hover:bg-red-900/60'
-                      : saveStatus === 'saving'
-                        ? 'cursor-not-allowed bg-slate-800 text-slate-500'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                }`}
-              >
-                {saveStatus === 'saved' ? (
-                  <>
-                    <CheckCircle className="h-4 w-4" />
-                    Saved to Application Dashboard
-                  </>
-                ) : saveStatus === 'saving' ? (
-                  'Saving...'
-                ) : saveStatus === 'error' ? (
-                  'Save Failed - Retry'
-                ) : (
-                  <>
-                    <Save className="h-4 w-4" />
-                    Save to Job Tracker
-                  </>
-                )}
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex h-64 flex-col items-center justify-center rounded-3xl border border-dashed border-slate-700 bg-slate-900 p-8 text-center">
-            <div className="mb-4 text-5xl">Document</div>
-            <p className="text-sm text-slate-400">
-              Paste your Claude JSON on the left and click <strong className="text-slate-200">Parse JSON</strong> to get started.
-            </p>
+            )}
           </div>
-        )}
+
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            className="flex w-full items-center justify-between border-t border-slate-800 px-6 py-4 transition-colors hover:bg-slate-800"
+          >
+            <span className="font-medium text-slate-200">Content Preview</span>
+            {showPreview ? (
+              <ChevronDown className="h-4 w-4 text-slate-500" />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-slate-500" />
+            )}
+          </button>
+
+          {showPreview && (
+            <div className="max-h-80 space-y-4 overflow-y-auto border-t border-slate-800 bg-slate-800/50 px-6 py-4 text-sm">
+              <div>
+                <p className="mb-1 text-xs font-bold uppercase text-slate-500">Summary</p>
+                <p className="leading-relaxed text-slate-300">
+                  {hasParsedData
+                    ? `${effectiveParsedData.professionalSummary.replace(/\*\*/g, '').slice(0, 220)}${effectiveParsedData.professionalSummary.length > 220 ? '...' : ''}`
+                    : 'The parsed professional summary preview will appear here.'}
+                </p>
+              </div>
+
+              <div>
+                <p className="mb-1 text-xs font-bold uppercase text-slate-500">
+                  Employment {hasParsedData ? `(${effectiveParsedData.workExperience.length} roles)` : ''}
+                </p>
+                {hasParsedData ? (
+                  effectiveParsedData.workExperience.map((experience, index) => (
+                    <p key={index} className="text-slate-300">
+                      <span className="font-medium text-slate-200">{experience.company}</span>
+                      {experience.position && <span className="text-slate-500"> - {experience.position}</span>}
+                      <span className="ml-2 text-xs text-slate-600">{experience.dates}</span>
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-slate-500">Recent roles and dates will appear here after parsing.</p>
+                )}
+              </div>
+
+              <div>
+                <p className="mb-1 text-xs font-bold uppercase text-slate-500">
+                  Skills {hasParsedData ? `(${Object.keys(effectiveParsedData.skills).length} categories)` : ''}
+                </p>
+                {hasParsedData ? (
+                  Object.entries(effectiveParsedData.skills).slice(0, 3).map(([category, skills]) => (
+                    <p key={category} className="text-slate-400">
+                      <span className="font-medium text-slate-300">{category}:</span>{' '}
+                      {(Array.isArray(skills) ? skills : [skills]).slice(0, 5).join(', ')}
+                      {Array.isArray(skills) && skills.length > 5 ? ` +${skills.length - 5} more` : ''}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-slate-500">Top skills and categories will appear here after parsing.</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-sm">
+            <label className="mb-2 block text-sm font-medium text-slate-300">Job Description</label>
+            <textarea
+              value={jobDescription}
+              onChange={(event) => {
+                setJobDescription(event.target.value)
+                setJobDescriptionError('')
+                setSaveStatus(null)
+              }}
+              placeholder="Paste the job description here before saving to the dashboard."
+              className={`h-40 w-full resize-none rounded-2xl border bg-slate-800 p-4 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition focus:border-indigo-500 ${
+                jobDescriptionError ? 'border-red-500' : 'border-slate-700'
+              }`}
+            />
+            <p className="mt-2 text-xs text-slate-500">
+              Parse JSON to enable downloads. Paste the JD as well to enable dashboard save.
+            </p>
+            {jobDescriptionError && (
+              <div className="mt-3 flex items-start gap-2 text-sm text-red-400">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{jobDescriptionError}</span>
+              </div>
+            )}
+          </div>
+
+          {downloadError && (
+            <div className="flex items-center gap-2 rounded-2xl border border-red-800/50 bg-red-950/40 px-4 py-3 text-sm text-red-400">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {downloadError}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <button
+              onClick={handleDownload}
+              disabled={!canDownload}
+              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3 font-medium transition-colors ${
+                canDownload
+                  ? 'bg-blue-600 text-white hover:bg-blue-500'
+                  : 'cursor-not-allowed bg-slate-800 text-slate-500'
+              }`}
+            >
+              <Download className="h-4 w-4" />
+              Download DOCX
+            </button>
+
+            <button
+              onClick={handleDownloadPdfFile}
+              disabled={!canDownload}
+              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3 font-medium transition-colors ${
+                canDownload
+                  ? 'bg-emerald-700 text-white hover:bg-emerald-600'
+                  : 'cursor-not-allowed bg-slate-800 text-slate-500'
+              }`}
+            >
+              <Download className="h-4 w-4" />
+              Download PDF File
+            </button>
+          </div>
+
+          <button
+            onClick={handleSaveToTracker}
+            disabled={!canSave}
+            className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3 font-medium transition-colors ${
+              saveStatus === 'saved'
+                ? 'cursor-default bg-emerald-900/40 text-emerald-400'
+                : saveStatus === 'error'
+                  ? 'bg-red-900/40 text-red-400 hover:bg-red-900/60'
+                  : canSave
+                    ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    : 'cursor-not-allowed bg-slate-800 text-slate-500'
+            }`}
+          >
+            {saveStatus === 'saved' ? (
+              <>
+                <CheckCircle className="h-4 w-4" />
+                Saved to Application Dashboard
+              </>
+            ) : saveStatus === 'saving' ? (
+              'Saving...'
+            ) : saveStatus === 'error' ? (
+              'Save Failed - Retry'
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Save to Job Tracker
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )

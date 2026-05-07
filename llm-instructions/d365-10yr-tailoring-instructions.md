@@ -102,6 +102,13 @@ The following are fixed facts. They go directly into the JSON output as-is. **Ne
 - `contactLocation` — JD city if specified, otherwise `"Dallas, TX"`
 - `resumeMeta.fileName` — based on target company and role
 
+### ORIGINAL COMPANY OVERRIDE
+
+If the user explicitly instructs **"use original company"**, **"keep original company"**, or equivalent wording, preserve the profile’s original current employer instead of changing the most recent company based on JD heuristics or any later override logic.
+
+- Keep the first work experience company exactly as defined in the hardcoded profile
+- Do not substitute a different current employer when this override is requested
+
 ---
 
 ## 🎯 CORE OBJECTIVE
@@ -397,6 +404,9 @@ Any ❌ → regenerate that section before producing output.
 - ❌ Never add Education, Certifications, or Projects sections (handled by the application)
 - ❌ Never include contact info in output
 - ❌ Never truncate output — this is a full long-form resume, output must be complete
+- ❌ Never use `"Remote"` as `contactLocation`
+- ❌ Never include `"Remote"` as any work `location`
+- ✔ If the JD is remote-only or does not specify a city, use `"Dallas, TX"` for `contactLocation`
 - ✔ Target 3–4 pages (senior long-form — more detail is correct here)
 - ❌ `jobTitle` must be a senior D365 / Power Platform / CRM variant
 
