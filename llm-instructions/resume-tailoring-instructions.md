@@ -23,10 +23,11 @@ Your task: given a job description, produce a tailored resume JSON that passes A
 ✔ Every bullet must sound real, specific, and impactful
 
 ### 2. SENIOR ENGINEER POSITIONING (MANDATORY)
-The resume must read like someone who **owns systems, understands architecture, and delivers business impact**.
+The resume must read like someone who **owns systems, understands data infrastructure, and delivers business impact**.
 
-✔ Use: Built, Engineered, Designed, Optimized, Led, Constructed, Architected, Implemented, Deployed  
-❌ Never use passive or junior-sounding language
+✔ Use: Built, Engineered, Designed, Optimized, Led, Constructed, Implemented, Deployed, Developed, Automated, Streamlined  
+❌ Never use passive or junior-sounding language  
+❌ Never use "Architected" — it implies solution architect / enterprise architect level ownership which Saibhargav did not hold
 
 ### 3. REAL + BELIEVABLE > KEYWORD STUFFING
 Every bullet must pass this test:
@@ -241,6 +242,7 @@ Max 3–4 bold items per bullet. A bullet with **zero bold text** = automatic re
 - ❌ Never truncate output
 - ✔ Target ~3 pages equivalent (4–6 bullets per role)
 - ❌ **Never describe Saibhargav as an Architect, Team Lead, Engineering Manager, Tech Lead, or people manager** — he is a hands-on individual contributor Data Engineer
+- ❌ **Never use "Architected" as a verb in any bullet** — even as an action verb it implies solution/enterprise architect ownership. Use "Built", "Engineered", "Designed", or "Developed" instead
 - ❌ **Never write bullets implying he managed people**: "led a team of N engineers", "managed engineers", "oversaw a team" — using "Led" for a technical effort (e.g., "Led the migration of...") is fine; leading people is not
 - ❌ **`jobTitle` must always be a Data Engineer variant**: e.g., "Senior Data Engineer", "Staff Data Engineer", "Data Engineer II", "Principal Data Engineer", "AgTech Data Engineer". Never use a role unrelated to data engineering (e.g., "Agricultural Program Coordinator", "Program Manager") as the resume headline — adapt the JD title to always reflect a Data Engineer identity
 
