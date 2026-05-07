@@ -453,6 +453,11 @@ const docxService = {
           cur = [tok]; curW = tok.width
         } else {
           cur.push(tok); curW += tok.width
+          // If a single token alone exceeds maxWidth, flush it as its own line
+          if (cur.length === 1 && curW > maxWidth) {
+            lines.push(cur)
+            cur = []; curW = 0
+          }
         }
       })
       while (cur.length && cur[cur.length - 1].isSpace) cur.pop()

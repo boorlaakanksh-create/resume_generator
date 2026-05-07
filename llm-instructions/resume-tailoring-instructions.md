@@ -45,43 +45,62 @@ If NOT → rewrite.
 
 ### STEP 1.5 — DETECT DOMAIN → SELECT CURRENT COMPANY NAME
 
-Identify the JD's industry domain, then use the matching company name for the **current role** (first work experience entry). Position, dates, and location remain unchanged — only the company name swaps.
+Identify the JD's industry domain. Each domain row lists **multiple companies in priority order**.
 
-| Domain | Company Name |
+⚠️ **CRITICAL EDGE CASE — Never use the target company as the current employer.**
+If the company you are applying to appears anywhere in the table, **skip it** and pick the next available company in the same row that is NOT the target company. A candidate cannot appear to currently work at the company they are applying to.
+
+**Selection rule:** Pick the **first** company in the matching row that ≠ the JD's target company.
+
+| Domain | Company Options (priority order — skip any that match the target) |
 |---|---|
-| Healthcare & Life Sciences | UnitedHealth Group |
-| Finance & Banking | JPMorgan Chase |
-| Retail & E-commerce | Amazon |
-| Education & EdTech | Coursera |
-| Energy & Utilities | ExxonMobil |
-| Mining & Natural Resources | Rio Tinto |
-| Automotive & Mobility | Tesla |
-| Travel & Hospitality | Airbnb |
-| Logistics & Supply Chain | FedEx |
-| Media & Entertainment | Netflix |
-| Telecommunications | AT&T |
-| Manufacturing & Industrial IoT | General Electric |
-| Real Estate & PropTech | Zillow |
-| Gaming | Electronic Arts |
-| Cybersecurity | CrowdStrike |
-| Government & Public Sector | NASA |
-| Consumer Goods (CPG) | Procter & Gamble |
-| Pharma & Biotechnology | Pfizer |
-| Insurance | Allstate |
-| Big Tech / SaaS | Google |
-| Marketing & AdTech | Meta |
-| FinTech | Stripe |
-| AI / Machine Learning Platforms | OpenAI |
-| Food Delivery & On-demand Services | DoorDash |
-| Agriculture (AgTech) | John Deere |
-| Research & Academia | MIT |
-| Payments & Card Networks | Visa |
-| Health Insurance | Cigna |
-| Smart Home / IoT | Nest Labs |
-| Publishing & Content Platforms | Spotify |
-| Consulting & Data Services | Accenture |
+| Healthcare & Life Sciences | UnitedHealth Group, Elevance Health, HCA Healthcare |
+| Finance & Banking | JPMorgan Chase, Goldman Sachs, Bank of America |
+| Retail & E-commerce | Amazon, Walmart, Target |
+| Education & EdTech | Coursera, Chegg, Pearson |
+| Energy & Utilities | ExxonMobil, Chevron, Duke Energy |
+| Mining & Natural Resources | Rio Tinto, Freeport-McMoRan, Barrick Gold |
+| Automotive & Mobility | Tesla, Ford, General Motors |
+| Travel & Hospitality | Airbnb, Marriott International, Hilton |
+| Logistics & Supply Chain | FedEx, UPS, XPO Logistics |
+| Media & Entertainment | Netflix, Walt Disney, Warner Bros. Discovery |
+| Telecommunications | AT&T, Verizon, T-Mobile |
+| Manufacturing & Industrial IoT | General Electric, Honeywell, Siemens |
+| Real Estate & PropTech | Zillow, CBRE, CoStar Group |
+| Gaming | Electronic Arts, Activision Blizzard, Epic Games |
+| Cybersecurity | CrowdStrike, Palo Alto Networks, Fortinet |
+| Government & Public Sector | Lockheed Martin, Booz Allen Hamilton, SAIC |
+| Consumer Goods (CPG) | Procter & Gamble, Unilever, Colgate-Palmolive |
+| Pharma & Biotechnology | Pfizer, Johnson & Johnson, Moderna |
+| Insurance | Allstate, Progressive, Travelers |
+| Big Tech / SaaS | Google, Salesforce, ServiceNow |
+| Marketing & AdTech | Meta, The Trade Desk, Nielsen |
+| FinTech | Stripe, Block (Square), Robinhood |
+| AI / Machine Learning Platforms | OpenAI, Anthropic, Databricks |
+| Food Delivery & On-demand Services | DoorDash, Uber, Instacart |
+| Agriculture (AgTech) | John Deere, Trimble, AGCO |
+| Research & Academia | MIT, Stanford Research Institute, Argonne National Lab |
+| Payments & Card Networks | Visa, Mastercard, PayPal |
+| Health Insurance | Cigna, Aetna, Humana |
+| Smart Home / IoT | Nest Labs, Ring, Honeywell Home |
+| Publishing & Content Platforms | Spotify, Apple, Condé Nast |
+| Consulting & Data Services | Accenture, Deloitte, Cognizant |
+| Cloud & Infrastructure | AWS (Amazon Web Services), Oracle Cloud, IBM |
+| Data & Analytics | Palantir, Snowflake, Databricks |
+| HR & Workforce Tech | Workday, ADP, SAP SuccessFactors |
+| E-commerce & Marketplace | Shopify, eBay, Etsy |
+| Social Media & Community | LinkedIn, Twitter (X), Pinterest |
+| Legal Tech | Thomson Reuters, LexisNexis, Relativity |
+| Aerospace & Defense | Boeing, Raytheon, Northrop Grumman |
+| Biotech & Genomics | Illumina, Genentech, 10x Genomics |
 
-If the domain is ambiguous or unlisted, default to the closest match. The selected company name goes in the `company` field of the first work experience entry and in the `fileName`.
+If the domain is ambiguous or unlisted, pick the closest match. The selected company name goes in the `company` field of the first work experience entry and in the `fileName`.
+
+**Examples of edge case handling:**
+- Applying to **UnitedHealth Group** → pick **Elevance Health** (skip UHG)
+- Applying to **Google** → pick **Salesforce** (skip Google)
+- Applying to **JPMorgan Chase** → pick **Goldman Sachs** (skip JPMorgan)
+- Applying to **Accenture** → pick **Deloitte** (skip Accenture)
 
 ### STEP 2 — KEYWORD COVERAGE (MANDATORY)
 **EVERY JD keyword MUST appear:**

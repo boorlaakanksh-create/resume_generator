@@ -11,12 +11,6 @@ function formatDate(iso) {
   })
 }
 
-function getStartOfDay(value) {
-  const date = new Date(value)
-  date.setHours(0, 0, 0, 0)
-  return date
-}
-
 function parseDateInput(value) {
   if (!value) return null
   const [year, month, day] = value.split('-').map(Number)
