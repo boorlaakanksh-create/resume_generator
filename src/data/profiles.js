@@ -88,6 +88,24 @@ export const RESUME_PROFILES = [
     ]
   },
   {
+    id: 'java-full-stack-3yr',
+    label: 'Java Full Stack - 3 Years',
+    shortLabel: 'Java Full Stack 3yr',
+    summary: 'Java full stack profile with 3+ years across React.js, JavaScript, TypeScript, Node.js, Express.js, Java, Spring Boot, REST APIs, GraphQL integration, SQL databases, CI/CD, and Agile delivery.',
+    personalInfo: {
+      name: 'Akanksh B',
+      phone: '+1 (940) 977-1112',
+      email: 'akankshb1111@gmail.com',
+      linkedin: ''
+    },
+    education: AKANKSH_GRADUATE_EDUCATION,
+    certifications: [],
+    clientProjects: [
+      'Comerica Bank - React, Next.js, GraphQL, Node.js, Express.js, and Spring Boot full stack delivery',
+      'KeyCorp Bank - React, TypeScript, REST APIs, GraphQL integration, Node.js, Express.js, and CI/CD'
+    ]
+  },
+  {
     id: 'data-engineer-3yr',
     label: 'Data Engineer - 3 Years',
     shortLabel: 'Data Engineer 3yr',
