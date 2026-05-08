@@ -10,6 +10,7 @@ import {
   convertInchesToTwip
 } from 'docx'
 import { saveAs } from 'file-saver'
+import { jsPDF } from 'jspdf'
 
 const FONT = 'Liberation Serif'
 const BODY_SIZE = 22
@@ -110,19 +111,8 @@ function buildPlainText(text) {
     .join('')
 }
 
-let jsPdfModulePromise = null
-
-async function loadJsPdf() {
-  if (!jsPdfModulePromise) {
-    jsPdfModulePromise = import(/* @vite-ignore */ 'https://esm.sh/jspdf@2.5.2')
-  }
-
-  const module = await jsPdfModulePromise
-  return module.jsPDF || module.default?.jsPDF || module.default
-}
-
 const docxService = {
-  async generateResume(resumeData, fileNameBase = 'Karne_Saibhargav_Resume') {
+  async generateResume(resumeData, fileNameBase = 'Boorla_Akanksh_Resume') {
     const sections = []
     const personalInfo = resumeData.personalInfo || {}
 
@@ -130,7 +120,7 @@ const docxService = {
       new Paragraph({
         children: [
           new TextRun({
-            text: personalInfo.name || 'Saibhargav Karne',
+            text: personalInfo.name || 'Akanksh Boorla',
             font: FONT,
             size: NAME_SIZE,
             bold: true,
@@ -414,8 +404,7 @@ const docxService = {
     saveAs(blob, `${fileNameBase}.docx`)
   },
 
-  async generateResumePdfFile(resumeData, fileNameBase = 'Karne_Saibhargav_Resume') {
-    const jsPDF = await loadJsPdf()
+  async generateResumePdfFile(resumeData, fileNameBase = 'Boorla_Akanksh_Resume') {
     const doc = new jsPDF({
       unit: 'pt',
       format: 'letter'
@@ -570,7 +559,7 @@ const docxService = {
 
     doc.setFont('times', 'bold')
     doc.setFontSize(16)
-    doc.text(personalInfo.name || 'Saibhargav Karne', pageWidth / 2, cursorY, { align: 'center' })
+    doc.text(personalInfo.name || 'Akanksh Boorla', pageWidth / 2, cursorY, { align: 'center' })
     cursorY += 16
 
     doc.setFont('times', 'normal')

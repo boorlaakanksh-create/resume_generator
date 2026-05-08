@@ -1,9 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, Download, RotateCcw, Save } from 'lucide-react'
 import { DEFAULT_PROFILE_ID, getProfileById, RESUME_PROFILES } from '../data/profiles'
-
-const ORIGINAL_COMPANY_NAME = 'Kraft Heinz'
-const ORIGINAL_COMPANY_PROFILE_ID = 'data-engineer-4yr'
 
 function camelToSpaces(str) {
   return str.replace(/([A-Z])/g, ' $1').trim()
@@ -19,39 +16,20 @@ function parseFileName(fileName) {
   }
 }
 
-function applyOriginalCompanyOverride(data, enabled) {
-  if (!data) return null
-  if (!enabled || !Array.isArray(data.workExperience) || data.workExperience.length === 0) return data
-
-  return {
-    ...data,
-    workExperience: data.workExperience.map((experience, index) => (
-      index === 0
-        ? { ...experience, company: ORIGINAL_COMPANY_NAME }
-        : experience
-    ))
-  }
-}
-
 export default function ResumeGenerator() {
   const [rawJson, setRawJson] = useState('')
   const [jobDescription, setJobDescription] = useState('')
   const [selectedProfileId, setSelectedProfileId] = useState(DEFAULT_PROFILE_ID)
-  const [useOriginalCompany, setUseOriginalCompany] = useState(false)
   const [parseError, setParseError] = useState('')
   const [jobDescriptionError, setJobDescriptionError] = useState('')
   const [parsedData, setParsedData] = useState(null)
   const [showPreview, setShowPreview] = useState(true)
   const [saveStatus, setSaveStatus] = useState(null)
+  const [saveError, setSaveError] = useState('')
   const [downloadError, setDownloadError] = useState('')
 
   const selectedProfile = getProfileById(selectedProfileId)
-  const showOriginalCompanyToggle = selectedProfile.id === ORIGINAL_COMPANY_PROFILE_ID
-
-  const effectiveParsedData = useMemo(
-    () => applyOriginalCompanyOverride(parsedData, showOriginalCompanyToggle && useOriginalCompany),
-    [parsedData, showOriginalCompanyToggle, useOriginalCompany]
-  )
+  const effectiveParsedData = parsedData
 
   const hasParsedData = Boolean(effectiveParsedData)
   const hasJobDescription = Boolean(jobDescription.trim())
@@ -76,7 +54,7 @@ export default function ResumeGenerator() {
 
   const buildResumeData = () => ({
     personalInfo: selectedProfile.personalInfo,
-    contactLocation: effectiveParsedData.contactLocation || 'Dallas, TX',
+    contactLocation: effectiveParsedData.contactLocation || 'Frisco, TX',
     jobTitle: effectiveParsedData.jobTitle || '',
     summary: effectiveParsedData.professionalSummary,
     skills: effectiveParsedData.skills,
@@ -88,6 +66,7 @@ export default function ResumeGenerator() {
   const handleParse = () => {
     setParseError('')
     setSaveStatus(null)
+    setSaveError('')
     setDownloadError('')
 
     if (!rawJson.trim()) {
@@ -166,6 +145,7 @@ export default function ResumeGenerator() {
 
     setJobDescriptionError('')
     setSaveStatus('saving')
+    setSaveError('')
     const { company, role } = parseFileName(effectiveParsedData.resumeMeta.fileName)
 
     try {
@@ -183,9 +163,23 @@ export default function ResumeGenerator() {
         })
       })
 
-      if (!res.ok) throw new Error('API error')
+      if (!res.ok) {
+        let message = `Save failed with HTTP ${res.status}`
+        const text = await res.text()
+
+        try {
+          const data = text ? JSON.parse(text) : null
+          if (data?.error) message = data.error
+        } catch {
+          if (text) message = text
+        }
+
+        throw new Error(message)
+      }
+
       setSaveStatus('saved')
-    } catch {
+    } catch (error) {
+      setSaveError(error.message || 'Could not save to the dashboard.')
       setSaveStatus('error')
     }
   }
@@ -193,16 +187,16 @@ export default function ResumeGenerator() {
   const handleReset = () => {
     setRawJson('')
     setJobDescription('')
-    setUseOriginalCompany(false)
     setParseError('')
     setJobDescriptionError('')
     setParsedData(null)
     setSaveStatus(null)
+    setSaveError('')
     setDownloadError('')
   }
 
   const fileName = effectiveParsedData?.resumeMeta?.fileName || 'Resume details will appear here after parsing.'
-  const location = effectiveParsedData?.contactLocation || 'Dallas, TX'
+  const location = effectiveParsedData?.contactLocation || 'Frisco, TX'
   const { company, role } = hasParsedData
     ? parseFileName(effectiveParsedData.resumeMeta.fileName)
     : { company: '', role: '' }
@@ -222,25 +216,27 @@ export default function ResumeGenerator() {
               setRawJson(event.target.value)
               setParseError('')
               setSaveStatus(null)
+              setSaveError('')
               setDownloadError('')
 
               if (parsedData) {
                 setParsedData(null)
               }
             }}
-            placeholder='{ "resumeMeta": { "fileName": "Karne_Saibhargav_Company_Role" }, ... }'
+            placeholder='{ "resumeMeta": { "fileName": "Boorla_Akanksh_Company_Role" }, ... }'
             className={`h-56 w-full resize-none rounded-2xl border bg-slate-800 p-4 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
               parseError ? 'border-red-500' : hasParsedData ? 'border-emerald-500' : 'border-slate-700'
             }`}
           />
 
           <div className="mt-4">
-            <label className="mb-2 block text-sm font-medium text-slate-300">Hardcoded Resume Profile</label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Resume Profile</label>
             <select
               value={selectedProfileId}
               onChange={(event) => {
                 setSelectedProfileId(event.target.value)
                 setSaveStatus(null)
+                setSaveError('')
               }}
               className="h-12 w-full rounded-2xl border border-slate-700 bg-slate-800 px-4 text-sm text-slate-100 outline-none transition focus:border-indigo-500"
             >
@@ -254,29 +250,6 @@ export default function ResumeGenerator() {
               The selected profile supplies contact details and education for the generated DOCX.
             </p>
           </div>
-
-          {showOriginalCompanyToggle && (
-            <div className="mt-4 flex items-start justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-              <div>
-                <p className="text-sm font-medium text-slate-200">Use original recent company</p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  When enabled, the most recent company in the parsed resume is hard-set to {ORIGINAL_COMPANY_NAME} and the JSON company value for the first role is ignored.
-                </p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={useOriginalCompany}
-                onClick={() => {
-                  setUseOriginalCompany((prev) => !prev)
-                  setSaveStatus(null)
-                }}
-                className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950 ${useOriginalCompany ? 'bg-emerald-500' : 'bg-slate-700'}`}
-              >
-                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${useOriginalCompany ? 'translate-x-5' : 'translate-x-0'}`} />
-              </button>
-            </div>
-          )}
 
           {parseError && (
             <div className="mt-3 flex items-start gap-2 text-sm text-red-400">
@@ -440,6 +413,7 @@ export default function ResumeGenerator() {
                 setJobDescription(event.target.value)
                 setJobDescriptionError('')
                 setSaveStatus(null)
+                setSaveError('')
               }}
               placeholder="Paste the job description here before saving to the dashboard."
               className={`h-40 w-full resize-none rounded-2xl border bg-slate-800 p-4 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition focus:border-indigo-500 ${
@@ -521,6 +495,12 @@ export default function ResumeGenerator() {
               </>
             )}
           </button>
+          {saveError && (
+            <div className="flex items-start gap-2 rounded-2xl border border-red-800/50 bg-red-950/40 px-4 py-3 text-sm text-red-400">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{saveError}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

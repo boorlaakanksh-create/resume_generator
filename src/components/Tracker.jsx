@@ -63,7 +63,7 @@ export default function Tracker() {
   const [activeFilter, setActiveFilter] = useState('all')
   const [searchInput, setSearchInput] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedProfileId, setSelectedProfileId] = useState('data-engineer-4yr')
+  const [selectedProfileId, setSelectedProfileId] = useState(DEFAULT_PROFILE_ID)
 
   const loadDocxService = useCallback(async () => {
     const module = await import('../services/docxService')
@@ -138,7 +138,7 @@ export default function Tracker() {
 
       const resumeData = {
         personalInfo: selectedProfile.personalInfo,
-        contactLocation: parsed.contactLocation || 'Dallas, TX',
+        contactLocation: parsed.contactLocation || 'Frisco, TX',
         jobTitle: parsed.jobTitle || '',
         summary: parsed.professionalSummary,
         skills: parsed.skills,
@@ -171,7 +171,7 @@ export default function Tracker() {
 
       const resumeData = {
         personalInfo: selectedProfile.personalInfo,
-        contactLocation: parsed.contactLocation || 'Dallas, TX',
+        contactLocation: parsed.contactLocation || 'Frisco, TX',
         jobTitle: parsed.jobTitle || '',
         summary: parsed.professionalSummary,
         skills: parsed.skills,
