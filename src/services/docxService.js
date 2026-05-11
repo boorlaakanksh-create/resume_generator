@@ -12,11 +12,12 @@ import {
 import { saveAs } from 'file-saver'
 import { jsPDF } from 'jspdf'
 
-const FONT = 'Liberation Serif'
+const FONT = 'Calibri'
+const PDF_FONT = 'helvetica'
 const BODY_SIZE = 22
-const SMALL_SIZE = 20
+const SMALL_SIZE = 22
 const NAME_SIZE = 32
-const HEADING_SIZE = 20
+const HEADING_SIZE = 24
 const RIGHT_TAB = convertInchesToTwip(7.2)
 
 function valueToText(value) {
@@ -453,7 +454,7 @@ const docxService = {
       segments.forEach(({ text: segText, bold }) => {
         segText.split(/(\s+)/).forEach(part => {
           if (!part.length) return
-          doc.setFont('times', bold ? 'bold' : 'normal')
+          doc.setFont(PDF_FONT, bold ? 'bold' : 'normal')
           doc.setFontSize(size)
           allTokens.push({ text: part, bold, isSpace: /^\s+$/.test(part), width: doc.getTextWidth(part) })
         })
@@ -502,7 +503,7 @@ const docxService = {
       cursorY += before
       doc.setFontSize(size)
       if (style === 'bold') {
-        doc.setFont('times', 'bold')
+        doc.setFont(PDF_FONT, 'bold')
         const lines = doc.splitTextToSize(buildPlainText(text), width)
         ensureSpace(lines.length * lineHeight + after)
         doc.text(lines, x, cursorY, { align, maxWidth: width })
@@ -517,7 +518,7 @@ const docxService = {
         if (align === 'center') { const tw = line.reduce((s, t) => s + t.width, 0); rx = x + (width - tw) / 2 }
         else if (align === 'right') { const tw = line.reduce((s, t) => s + t.width, 0); rx = x + width - tw }
         line.forEach(({ text: t, bold, width: tw }) => {
-          doc.setFont('times', bold ? 'bold' : 'normal')
+          doc.setFont(PDF_FONT, bold ? 'bold' : 'normal')
           doc.setFontSize(size)
           doc.text(t, rx, y)
           rx += tw
@@ -529,8 +530,8 @@ const docxService = {
     const drawSectionHeader = (text) => {
       ensureSpace(26)
       cursorY += 10
-      doc.setFont('times', 'bold')
-      doc.setFontSize(10)
+      doc.setFont(PDF_FONT, 'bold')
+      doc.setFontSize(12)
       doc.text(text, marginLeft, cursorY)
       cursorY += 4
       doc.setLineWidth(0.8)
@@ -544,7 +545,7 @@ const docxService = {
       const lineCount = Math.max(leftLines.length, rightLines.length)
       ensureSpace(lineCount * 14 + 8)
 
-      doc.setFont('times', 'normal')
+      doc.setFont(PDF_FONT, 'normal')
       doc.setFontSize(11)
       doc.text(leftLines, marginLeft, cursorY)
       doc.text(rightLines, rightColumnX, cursorY, { align: 'right' })
@@ -557,14 +558,14 @@ const docxService = {
       items.forEach((item) => {
         const richLines = buildRichLines(item, contentWidth - 16, size)
         ensureSpace(richLines.length * lineH + 4)
-        doc.setFont('times', 'normal')
+        doc.setFont(PDF_FONT, 'normal')
         doc.setFontSize(size)
         doc.text('•', marginLeft + 4, cursorY)
         richLines.forEach((line, li) => {
           let x = marginLeft + 14
           const y = cursorY + li * lineH
           line.forEach(({ text: t, bold, width: tw }) => {
-            doc.setFont('times', bold ? 'bold' : 'normal')
+            doc.setFont(PDF_FONT, bold ? 'bold' : 'normal')
             doc.setFontSize(size)
             doc.text(t, x, y)
             x += tw
@@ -585,18 +586,18 @@ const docxService = {
       .filter(Boolean)
       .forEach((item) => contactParts.push(item.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')))
 
-    doc.setFont('times', 'bold')
+    doc.setFont(PDF_FONT, 'bold')
     doc.setFontSize(16)
     doc.text(personalInfo.name || 'Akanksh Boorla', pageWidth / 2, cursorY, { align: 'center' })
     cursorY += 16
 
-    doc.setFont('times', 'normal')
-    doc.setFontSize(10)
+    doc.setFont(PDF_FONT, 'normal')
+    doc.setFontSize(11)
     doc.text(contactParts.join(' | '), pageWidth / 2, cursorY, { align: 'center', maxWidth: contentWidth })
     cursorY += 16
 
     if (resumeData.jobTitle) {
-      doc.setFont('times', 'bolditalic')
+      doc.setFont(PDF_FONT, 'bolditalic')
       doc.setFontSize(11)
       doc.text(resumeData.jobTitle, pageWidth / 2, cursorY, { align: 'center' })
       cursorY += 18
