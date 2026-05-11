@@ -19,28 +19,44 @@ const NAME_SIZE = 32
 const HEADING_SIZE = 20
 const RIGHT_TAB = convertInchesToTwip(7.2)
 
+function valueToText(value) {
+  if (value == null) return ''
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (Array.isArray(value)) return value.map(valueToText).filter(Boolean).join(' ')
+  if (typeof value === 'object') {
+    if (value.text) return valueToText(value.text)
+    if (value.summary) return valueToText(value.summary)
+    if (value.description) return valueToText(value.description)
+    if (value.point) return valueToText(value.point)
+    return Object.values(value).map(valueToText).filter(Boolean).join(' ')
+  }
+  return String(value)
+}
+
 function parseFormattedText(text) {
-  if (!text) return [{ text: '', bold: false }]
+  const safeText = valueToText(text)
+  if (!safeText) return [{ text: '', bold: false }]
 
   const runs = []
   const boldRegex = /\*\*(.*?)\*\*/g
   let lastIndex = 0
   let match
 
-  while ((match = boldRegex.exec(text)) !== null) {
+  while ((match = boldRegex.exec(safeText)) !== null) {
     if (match.index > lastIndex) {
-      runs.push({ text: text.substring(lastIndex, match.index), bold: false })
+      runs.push({ text: safeText.substring(lastIndex, match.index), bold: false })
     }
 
     runs.push({ text: match[1], bold: true })
     lastIndex = match.index + match[0].length
   }
 
-  if (lastIndex < text.length) {
-    runs.push({ text: text.substring(lastIndex), bold: false })
+  if (lastIndex < safeText.length) {
+    runs.push({ text: safeText.substring(lastIndex), bold: false })
   }
 
-  if (runs.length === 0) runs.push({ text, bold: false })
+  if (runs.length === 0) runs.push({ text: safeText, bold: false })
   return runs
 }
 
@@ -52,6 +68,12 @@ function buildTextRuns(text, options = {}) {
     font: FONT,
     color: '000000'
   }))
+}
+
+function normalizeList(value) {
+  if (Array.isArray(value)) return value.map(valueToText).filter(Boolean)
+  const text = valueToText(value)
+  return text ? [text] : []
 }
 
 function createSectionHeader(text) {
@@ -214,13 +236,19 @@ const docxService = {
 
     if (resumeData.summary) {
       sections.push(createSectionHeader('PROFESSIONAL SUMMARY'))
-      sections.push(
-        new Paragraph({
-          children: buildTextRuns(resumeData.summary),
-          spacing: { after: 100, line: 240 },
-          alignment: AlignmentType.BOTH
+      if (Array.isArray(resumeData.summary)) {
+        normalizeList(resumeData.summary).forEach((summaryItem, index, summaryItems) => {
+          sections.push(createBulletParagraph(summaryItem, index === summaryItems.length - 1))
         })
-      )
+      } else {
+        sections.push(
+          new Paragraph({
+            children: buildTextRuns(resumeData.summary),
+            spacing: { after: 100, line: 240 },
+            alignment: AlignmentType.BOTH
+          })
+        )
+      }
     }
 
     if (resumeData.skills && Object.keys(resumeData.skills).length > 0) {
@@ -576,7 +604,11 @@ const docxService = {
 
     if (resumeData.summary) {
       drawSectionHeader('PROFESSIONAL SUMMARY')
-      drawWrappedText(resumeData.summary, { lineHeight: 14, after: 4 })
+      if (Array.isArray(resumeData.summary)) {
+        drawBullets(normalizeList(resumeData.summary))
+      } else {
+        drawWrappedText(resumeData.summary, { lineHeight: 14, after: 4 })
+      }
     }
 
     if (resumeData.skills && Object.keys(resumeData.skills).length > 0) {

@@ -34,6 +34,16 @@ Senior Full Stack Engineer with 10 years of experience specializing in backend-h
 - **Comcast** — Java Developer, Philadelphia, PA | Feb 2020 - Apr 2021
 - **Centene** — Java Developer, Knoxville, TN | Mar 2016 - Dec 2019
 
+## Client Timeline Skill Guardrails
+
+Only insert a JD skill into a client section when it is believable for that client, role, and time period. Do not force modern tools into older roles unless the tool existed and fits that environment.
+
+- **Truist Bank, Feb 2024 - Till Date:** Java 17, Spring Boot, Spring Cloud, Spring Security, WebFlux, Kafka, AWS MSK, AWS Lambda, ECS, EKS, API Gateway, S3, Terraform, Docker, Kubernetes, Jenkins, GitLab CI/CD, Cassandra, PostgreSQL, MongoDB, DynamoDB, OAuth2, JWT, TLS, CloudWatch, Datadog, React/Angular.
+- **Charles Schwab, Aug 2022 - Jan 2024:** Java 11/17, Spring Boot, Spring Cloud, Spring Security, Kafka, AWS, ECS/EKS, API Gateway, S3, Terraform, Docker, Kubernetes, Jenkins/GitLab CI/CD, PostgreSQL, MongoDB, Cassandra, OAuth2, JWT, JUnit, Mockito, REST Assured, React/Angular.
+- **M&T Bank, Apr 2021 - Jul 2022:** Java 8/11, Spring Boot, Spring Cloud, Spring Security, REST APIs, Kafka, AWS, Docker, Kubernetes, Jenkins, PostgreSQL, MongoDB, Cassandra, OAuth2, JWT, JUnit, Mockito, Selenium, SonarQube, Angular/React support.
+- **Comcast, Feb 2020 - Apr 2021:** Java 8/11, Spring Boot, RESTful APIs, Kafka, Spring Security, Docker, Jenkins, PostgreSQL, MongoDB, Cassandra, caching, asynchronous processing, JUnit, Mockito, Selenium, SonarQube, Angular/React support.
+- **Centene, Mar 2016 - Dec 2019:** Java 8, Spring, Spring Boot, REST/SOAP services, Spring Security, SQL, PostgreSQL, MongoDB, Jenkins, JUnit, Mockito, Selenium, SonarQube, OAuth2/JWT where appropriate, healthcare claims processing, batch processing, and enterprise integration.
+
 ## Real Metrics
 
 - 40% API throughput improvement with Spring WebFlux
@@ -46,13 +56,19 @@ Senior Full Stack Engineer with 10 years of experience specializing in backend-h
 
 1. `jobTitle` must be a senior Java / backend-heavy full stack title from the JD.
 2. Extract every required and preferred JD keyword.
-3. Put every JD tool naturally in the skills section.
-4. Place the most important JD tools into work bullets without keyword stuffing.
-5. Preserve all real companies, titles, dates, and locations exactly.
-6. Use only metrics listed above.
-7. Every bullet must contain at least one bolded tool, metric, or JD keyword.
-8. Never describe Akanksh as a people manager, engineering manager, VP, CTO, or non-technical program manager.
-9. Avoid "Architected" as a verb. Use Built, Designed, Developed, Engineered, Implemented, Optimized, Automated, Integrated, Migrated, or Delivered.
+3. Build recruiter-friendly keyword density from the JD: repeat the highest-value JD terms naturally across summary, skills, and client bullets, especially exact technology names, architecture terms, cloud services, testing tools, security terms, and domain phrases.
+4. Put every JD tool naturally in the skills section when it exists in this profile.
+5. Before inserting any JD skill into a client achievement, verify it exists in the Client Timeline Skill Guardrails for that client and is reasonable for that date range.
+6. If a JD keyword does not align with this profile or any client timeline, do not invent experience. Mention only adjacent truthful skills from the profile.
+7. Place the most important JD tools into work bullets without keyword stuffing.
+8. `professionalSummary` must be a single JSON string containing 12-15 concise bullet-style summary points separated by semicolons. Each point must include at least one bolded JD keyword, tool, metric, architecture pattern, or domain phrase.
+9. Each client in `workExperience` must contain 12-15 achievement bullets. Every client must include JD-relevant keywords, but only where they align with that client's timeline.
+10. Use the most JD-relevant bullets near the top of each client section.
+11. Preserve all real companies, titles, dates, and locations exactly.
+12. Use only metrics listed above.
+13. Every bullet must contain at least one bolded tool, metric, or JD keyword.
+14. Never describe Akanksh as a people manager, engineering manager, VP, CTO, or non-technical program manager.
+15. Avoid "Architected" as a verb. Use Built, Designed, Developed, Engineered, Implemented, Optimized, Automated, Integrated, Migrated, or Delivered.
 
 ## Output Format
 
@@ -65,7 +81,7 @@ Return only valid JSON. No preamble and no markdown fence.
   },
   "contactLocation": "Frisco, TX",
   "jobTitle": "Exact Job Title from JD",
-  "professionalSummary": "...",
+  "professionalSummary": "12-15 concise summary points in one string, separated by semicolons, with natural JD keyword density and truthful profile alignment",
   "skills": {
     "Category Name": ["skill1", "skill2"]
   },
@@ -75,7 +91,7 @@ Return only valid JSON. No preamble and no markdown fence.
       "position": "Position from this profile",
       "location": "Location from this profile",
       "dates": "Dates from this profile",
-      "achievements": ["..."]
+      "achievements": ["12-15 client bullets aligned to the JD and valid for this client's timeline"]
     }
   ]
 }

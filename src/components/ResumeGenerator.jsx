@@ -3,17 +3,82 @@ import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, Download, RotateCc
 import { DEFAULT_PROFILE_ID, getProfileById, RESUME_PROFILES } from '../data/profiles'
 
 function camelToSpaces(str) {
-  return str.replace(/([A-Z])/g, ' $1').trim()
+  return String(str || '').replace(/([A-Z])/g, ' $1').trim()
 }
 
 function parseFileName(fileName) {
-  const parts = fileName.split('_')
+  const parts = String(fileName || '').split('_')
   if (parts.length < 3) return { company: fileName, role: '' }
 
   return {
     company: camelToSpaces(parts[2] || ''),
     role: parts.slice(3).map(camelToSpaces).join(' ')
   }
+}
+
+function valueToText(value) {
+  if (value == null) return ''
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (Array.isArray(value)) return value.map(valueToText).filter(Boolean).join(' ')
+  if (typeof value === 'object') {
+    if (value.text) return valueToText(value.text)
+    if (value.summary) return valueToText(value.summary)
+    if (value.description) return valueToText(value.description)
+    if (value.point) return valueToText(value.point)
+    return Object.values(value).map(valueToText).filter(Boolean).join(' ')
+  }
+  return String(value)
+}
+
+function normalizeTextList(value) {
+  if (Array.isArray(value)) return value.map(valueToText).filter(Boolean)
+  if (value && typeof value === 'object') {
+    const list = value.points || value.items || value.bullets || value.achievements || value.responsibilities
+    if (Array.isArray(list)) return normalizeTextList(list)
+  }
+  const text = valueToText(value)
+  return text ? [text] : []
+}
+
+function normalizeParsedResume(parsed) {
+  return {
+    ...parsed,
+    resumeMeta: {
+      ...parsed.resumeMeta,
+      fileName: valueToText(parsed.resumeMeta?.fileName)
+    },
+    contactLocation: valueToText(parsed.contactLocation),
+    jobTitle: valueToText(parsed.jobTitle),
+    professionalSummary: Array.isArray(parsed.professionalSummary) || typeof parsed.professionalSummary === 'object'
+      ? normalizeTextList(parsed.professionalSummary)
+      : valueToText(parsed.professionalSummary),
+    skills: Object.fromEntries(
+      Object.entries(parsed.skills || {}).map(([category, skills]) => [
+        valueToText(category),
+        Array.isArray(skills) ? skills.map(valueToText).filter(Boolean) : valueToText(skills)
+      ])
+    ),
+    workExperience: (parsed.workExperience || []).map((item) => {
+      const experience = item && typeof item === 'object' ? item : {}
+      return {
+        ...experience,
+        company: valueToText(experience.company),
+        position: valueToText(experience.position),
+        location: valueToText(experience.location),
+        dates: valueToText(experience.dates || experience.period),
+        achievements: normalizeTextList(experience.achievements || experience.bullets || experience.responsibilities)
+      }
+    })
+  }
+}
+
+function formatPreviewSummary(summary) {
+  const text = Array.isArray(summary) ? summary.join(' ') : valueToText(summary)
+  if (!text) return ''
+
+  const plainText = text.replace(/\*\*/g, '')
+  return `${plainText.slice(0, 220)}${plainText.length > 220 ? '...' : ''}`
 }
 
 export default function ResumeGenerator() {
@@ -102,7 +167,7 @@ export default function ResumeGenerator() {
         return
       }
 
-      setParsedData(parsed)
+      setParsedData(normalizeParsedResume(parsed))
     } catch (err) {
       setParseError(`Invalid JSON: ${err.message}`)
     }
@@ -362,7 +427,7 @@ export default function ResumeGenerator() {
                 <p className="mb-1 text-xs font-bold uppercase text-slate-500">Summary</p>
                 <p className="leading-relaxed text-slate-300">
                   {hasParsedData
-                    ? `${effectiveParsedData.professionalSummary.replace(/\*\*/g, '').slice(0, 220)}${effectiveParsedData.professionalSummary.length > 220 ? '...' : ''}`
+                    ? formatPreviewSummary(effectiveParsedData.professionalSummary)
                     : 'The parsed professional summary preview will appear here.'}
                 </p>
               </div>

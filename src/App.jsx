@@ -1,7 +1,48 @@
-import { ShieldCheck } from 'lucide-react'
-import { useState } from 'react'
+import { Component, useState } from 'react'
 import ResumeGenerator from './components/ResumeGenerator'
 import Tracker from './components/Tracker'
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { error: null }
+    this.handleReset = this.handleReset.bind(this)
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error }
+  }
+
+  componentDidCatch(error, info) {
+    console.error('Resume generator render failed:', error, info)
+  }
+
+  handleReset() {
+    this.setState({ error: null })
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children
+
+    return (
+      <div className="rounded-3xl border border-red-800/50 bg-red-950/40 p-6 text-red-100">
+        <h2 className="text-lg font-semibold">Something in the parsed resume data caused a render error.</h2>
+        <p className="mt-2 text-sm text-red-200">
+          The page is still running. Reset this view, then paste the JSON again after checking for nested objects in summary, skills, or work experience.
+        </p>
+        <pre className="mt-4 overflow-auto rounded-2xl bg-red-950/70 p-4 text-xs text-red-100">
+          {this.state.error.message}
+        </pre>
+        <button
+          onClick={this.handleReset}
+          className="mt-4 rounded-2xl bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+        >
+          Reset View
+        </button>
+      </div>
+    )
+  }
+}
 
 export default function App() {
   const [tab, setTab] = useState('generate')
@@ -43,8 +84,10 @@ export default function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {tab === 'generate' && <ResumeGenerator />}
-        {tab === 'tracker' && <Tracker />}
+        <ErrorBoundary key={tab}>
+          {tab === 'generate' && <ResumeGenerator />}
+          {tab === 'tracker' && <Tracker />}
+        </ErrorBoundary>
       </main>
     </div>
   )
