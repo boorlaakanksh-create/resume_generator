@@ -288,7 +288,7 @@ export default function ResumeGenerator() {
                 setParsedData(null)
               }
             }}
-            placeholder='{ "resumeMeta": { "fileName": "Boorla_Akanksh_Company_Role" }, ... }'
+            placeholder='{ "resumeMeta": { "fileName": "Akanksh_Company_Role" }, ... }'
             className={`h-56 w-full resize-none rounded-2xl border bg-slate-800 p-4 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
               parseError ? 'border-red-500' : hasParsedData ? 'border-emerald-500' : 'border-slate-700'
             }`}

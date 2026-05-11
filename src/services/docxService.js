@@ -135,7 +135,7 @@ function buildPlainText(text) {
 }
 
 const docxService = {
-  async generateResume(resumeData, fileNameBase = 'Boorla_Akanksh_Resume') {
+  async generateResume(resumeData, fileNameBase = 'Akanksh_Resume') {
     const sections = []
     const personalInfo = resumeData.personalInfo || {}
 
@@ -143,7 +143,7 @@ const docxService = {
       new Paragraph({
         children: [
           new TextRun({
-            text: personalInfo.name || 'Akanksh Boorla',
+            text: personalInfo.name || 'Akanksh B',
             font: FONT,
             size: NAME_SIZE,
             bold: true,
@@ -433,7 +433,7 @@ const docxService = {
     saveAs(blob, `${fileNameBase}.docx`)
   },
 
-  async generateResumePdfFile(resumeData, fileNameBase = 'Boorla_Akanksh_Resume') {
+  async generateResumePdfFile(resumeData, fileNameBase = 'Akanksh_Resume') {
     const doc = new jsPDF({
       unit: 'pt',
       format: 'letter'
@@ -588,7 +588,7 @@ const docxService = {
 
     doc.setFont(PDF_FONT, 'bold')
     doc.setFontSize(16)
-    doc.text(personalInfo.name || 'Akanksh Boorla', pageWidth / 2, cursorY, { align: 'center' })
+    doc.text(personalInfo.name || 'Akanksh B', pageWidth / 2, cursorY, { align: 'center' })
     cursorY += 16
 
     doc.setFont(PDF_FONT, 'normal')

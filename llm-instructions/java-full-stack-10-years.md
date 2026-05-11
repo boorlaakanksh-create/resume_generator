@@ -77,6 +77,7 @@ Only insert a JD skill into a client section when it is believable for that clie
 13. Every bullet must contain at least one bolded tool, metric, or JD keyword.
 14. Never describe Akanksh as a people manager, engineering manager, VP, CTO, or non-technical program manager.
 15. Avoid "Architected" as a verb. Use Built, Designed, Developed, Engineered, Implemented, Optimized, Automated, Integrated, Migrated, or Delivered.
+16. Do not include the last name `Boorla` anywhere in the generated resume JSON, file name, or visible resume content. Use `Akanksh B` for the candidate name when needed and `Akanksh_[TargetCompany]_[RoleTitle]` for file names.
 
 ## Output Format
 
@@ -85,7 +86,7 @@ Return only valid JSON. No preamble and no markdown fence.
 ```json
 {
   "resumeMeta": {
-    "fileName": "Boorla_Akanksh_[TargetCompany]_[RoleTitle]"
+    "fileName": "Akanksh_[TargetCompany]_[RoleTitle]"
   },
   "contactLocation": "Frisco, TX",
   "jobTitle": "Exact Job Title from JD",
