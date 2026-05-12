@@ -61,6 +61,7 @@ Only insert a JD skill into a client section when it is believable for that clie
 - Each summary point must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per point.
 - Each client responsibility/achievement bullet must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per bullet.
 - Do not create one-line bullets. Do not create bullets longer than 3 resume lines.
+- Every sentence and every bullet must end with a full stop/period.
 
 ## Tailoring Rules
 
@@ -80,6 +81,7 @@ Only insert a JD skill into a client section when it is believable for that clie
 14. Never describe Akanksh as a people manager, engineering manager, VP, CTO, or non-technical program manager.
 15. Avoid "Architected" as a verb. Use Built, Designed, Developed, Engineered, Implemented, Optimized, Automated, Integrated, Migrated, or Delivered.
 16. Do not include the last name `Boorla` anywhere in the generated resume JSON, file name, or visible resume content. Use `Akanksh B` for the candidate name when needed and `Akanksh_[TargetCompany]_[RoleTitle]` for file names.
+17. End every summary bullet, client responsibility bullet, and complete sentence with a full stop/period.
 
 ## Output Format
 

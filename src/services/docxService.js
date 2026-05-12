@@ -77,6 +77,12 @@ function normalizeList(value) {
   return text ? [text] : []
 }
 
+function ensureFullStop(value) {
+  const text = valueToText(value).trim()
+  if (!text) return ''
+  return /[.!?]$/.test(text) ? text : `${text}.`
+}
+
 function normalizeSummaryBullets(value) {
   if (Array.isArray(value)) return normalizeList(value)
 
@@ -113,7 +119,7 @@ function createSectionHeader(text) {
 
 function createBulletParagraph(text, isLastBullet = false) {
   return new Paragraph({
-    children: buildTextRuns(text),
+    children: buildTextRuns(ensureFullStop(text)),
     bullet: { level: 0 },
     indent: {
       left: convertInchesToTwip(0.23),
@@ -556,7 +562,7 @@ const docxService = {
       const size = 11
       const lineH = 14
       items.forEach((item) => {
-        const richLines = buildRichLines(item, contentWidth - 16, size)
+        const richLines = buildRichLines(ensureFullStop(item), contentWidth - 16, size)
         ensureSpace(richLines.length * lineH + 4)
         doc.setFont(PDF_FONT, 'normal')
         doc.setFontSize(size)
