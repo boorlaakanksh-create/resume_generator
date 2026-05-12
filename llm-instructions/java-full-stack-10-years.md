@@ -56,6 +56,7 @@ Only insert a JD skill into a client section when it is believable for that clie
 
 - Use Calibri 11 pt for all resume body content.
 - Use Calibri 12 pt for section headings.
+- Render the Professional Summary section as bullet points, not as one paragraph.
 - Each summary point must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per point.
 - Each client responsibility/achievement bullet must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per bullet.
 - Do not create one-line bullets. Do not create bullets longer than 3 resume lines.
@@ -69,7 +70,7 @@ Only insert a JD skill into a client section when it is believable for that clie
 5. Before inserting any JD skill into a client achievement, verify it exists in the Client Timeline Skill Guardrails for that client and is reasonable for that date range.
 6. If a JD keyword does not align with this profile or any client timeline, do not invent experience. Mention only adjacent truthful skills from the profile.
 7. Place the most important JD tools into work bullets without keyword stuffing.
-8. `professionalSummary` must be a single JSON string containing 12-15 bullet-style summary points separated by semicolons. Each point must be 2-3 resume lines long, target 28-45 words, and include at least one bolded JD keyword, tool, metric, architecture pattern, or domain phrase.
+8. `professionalSummary` must be a single JSON string containing 12-15 bullet points separated by semicolons. Each summary item must be written as a resume bullet, must be 2-3 resume lines long, target 28-45 words, and include at least one bolded JD keyword, tool, metric, architecture pattern, or domain phrase.
 9. Each client in `workExperience` must contain 12-15 responsibility/achievement bullets. Every bullet must be 2-3 resume lines long, target 28-45 words, and include JD-relevant keywords only where they align with that client's timeline.
 10. Use the most JD-relevant bullets near the top of each client section.
 11. Preserve all real companies, titles, dates, and locations exactly.
@@ -90,7 +91,7 @@ Return only valid JSON. No preamble and no markdown fence.
   },
   "contactLocation": "Frisco, TX",
   "jobTitle": "Exact Job Title from JD",
-  "professionalSummary": "12-15 summary points in one string, separated by semicolons; each point should be 2-3 resume lines long at Calibri 11 pt with natural JD keyword density and truthful profile alignment",
+  "professionalSummary": "12-15 bullet-form summary points in one string, separated by semicolons; each summary bullet should be 2-3 resume lines long at Calibri 11 pt with natural JD keyword density and truthful profile alignment",
   "skills": {
     "Category Name": ["skill1", "skill2"]
   },
