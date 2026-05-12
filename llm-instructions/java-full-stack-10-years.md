@@ -59,6 +59,7 @@ Only insert a JD skill into a client section when it is believable for that clie
 - Render the Professional Summary section as bullet points, not as one paragraph.
 - Each Professional Summary bullet must appear on its own new bullet line, using the exact same bullet formatting style, indentation, spacing, and sentence structure as client responsibilities.
 - Do not write the Professional Summary as a paragraph and do not prefix summary items with manual dash or bullet symbols in the JSON; the resume generator applies the same bullet formatting used for responsibilities.
+- Do not leave semicolons at the end of rendered Professional Summary bullets; semicolons are only separators inside the JSON string.
 - Each summary point must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per point.
 - Each client responsibility/achievement bullet must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per bullet.
 - Do not create one-line bullets. Do not create bullets longer than 3 resume lines.
@@ -83,6 +84,7 @@ Only insert a JD skill into a client section when it is believable for that clie
 15. Avoid "Architected" as a verb. Use Built, Designed, Developed, Engineered, Implemented, Optimized, Automated, Integrated, Migrated, or Delivered.
 16. Do not include the last name `Boorla` anywhere in the generated resume JSON, file name, or visible resume content. Use `Akanksh B` for the candidate name when needed and `Akanksh_[TargetCompany]_[RoleTitle]` for file names.
 17. End every summary bullet, client responsibility bullet, and complete sentence with a full stop/period.
+18. Do not end any Professional Summary bullet with a semicolon; every rendered summary bullet must end with a period only.
 
 ## Output Format
 

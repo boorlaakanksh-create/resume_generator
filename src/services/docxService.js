@@ -88,7 +88,7 @@ function normalizeSummaryBullets(value) {
 
   return valueToText(value)
     .split(';')
-    .map((item) => item.trim().replace(/^[-•]\s*/, ''))
+    .map((item) => item.trim().replace(/^[-•]\s*/, '').replace(/[;:]+$/, '').trim())
     .filter(Boolean)
 }
 
