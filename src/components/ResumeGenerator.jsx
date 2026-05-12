@@ -41,6 +41,18 @@ function normalizeTextList(value) {
   return text ? [text] : []
 }
 
+function normalizeSummaryBullets(value) {
+  if (Array.isArray(value) || (value && typeof value === 'object')) return normalizeTextList(value)
+
+  const text = valueToText(value)
+  if (!text) return []
+
+  return text
+    .split(/\s*(?:;|\n|(?:^|\s)[•-]\s+|\d+\.\s+)/)
+    .map((item) => item.trim().replace(/^[-•]\s*/, '').replace(/[;:]+$/, '').trim())
+    .filter(Boolean)
+}
+
 function normalizeParsedResume(parsed) {
   return {
     ...parsed,
@@ -50,9 +62,7 @@ function normalizeParsedResume(parsed) {
     },
     contactLocation: valueToText(parsed.contactLocation),
     jobTitle: valueToText(parsed.jobTitle),
-    professionalSummary: Array.isArray(parsed.professionalSummary) || typeof parsed.professionalSummary === 'object'
-      ? normalizeTextList(parsed.professionalSummary)
-      : valueToText(parsed.professionalSummary),
+    professionalSummary: normalizeSummaryBullets(parsed.professionalSummary),
     skills: Object.fromEntries(
       Object.entries(parsed.skills || {}).map(([category, skills]) => [
         valueToText(category),

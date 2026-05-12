@@ -58,8 +58,8 @@ Only insert a JD skill into a client section when it is believable for that clie
 - Use Calibri 12 pt for section headings.
 - Render the Professional Summary section as bullet points, not as one paragraph.
 - Each Professional Summary bullet must appear on its own new bullet line, using the exact same bullet formatting style, indentation, spacing, and sentence structure as client responsibilities.
-- Do not write the Professional Summary as a paragraph and do not prefix summary items with manual dash or bullet symbols in the JSON; the resume generator applies the same bullet formatting used for responsibilities.
-- Do not leave semicolons at the end of rendered Professional Summary bullets; semicolons are only separators inside the JSON string.
+- Do not write the Professional Summary as a paragraph and do not prefix summary items with manual dash or bullet symbols in the JSON; provide summary bullets as an array and the resume generator applies the same bullet formatting used for responsibilities.
+- Do not use semicolons inside or at the end of Professional Summary bullets.
 - Each summary point must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per point.
 - Each client responsibility/achievement bullet must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per bullet.
 - Do not create one-line bullets. Do not create bullets longer than 3 resume lines.
@@ -74,7 +74,7 @@ Only insert a JD skill into a client section when it is believable for that clie
 5. Before inserting any JD skill into a client achievement, verify it exists in the Client Timeline Skill Guardrails for that client and is reasonable for that date range.
 6. If a JD keyword does not align with this profile or any client timeline, do not invent experience. Mention only adjacent truthful skills from the profile.
 7. Place the most important JD tools into work bullets without keyword stuffing.
-8. `professionalSummary` must be a single JSON string containing 12-15 responsibility-style bullet points separated by semicolons. The resume generator will split each semicolon-separated summary item onto its own bullet line using the same bullet format as client responsibilities. Each summary item must be 2-3 resume lines long, target 28-45 words, and include at least one bolded JD keyword, tool, metric, architecture pattern, or domain phrase.
+8. `professionalSummary` must be a JSON array of 12-15 strings, exactly like each client's `achievements` array. Each string is one responsibility-style summary bullet and will render on its own bullet line using the same bullet format as client responsibilities. Each summary item must be 2-3 resume lines long, target 28-45 words, and include at least one bolded JD keyword, tool, metric, architecture pattern, or domain phrase.
 9. Each client in `workExperience` must contain 12-15 responsibility/achievement bullets. Every bullet must be 2-3 resume lines long, target 28-45 words, and include JD-relevant keywords only where they align with that client's timeline.
 10. Use the most JD-relevant bullets near the top of each client section.
 11. Preserve all real companies, titles, dates, and locations exactly.
@@ -84,7 +84,7 @@ Only insert a JD skill into a client section when it is believable for that clie
 15. Avoid "Architected" as a verb. Use Built, Designed, Developed, Engineered, Implemented, Optimized, Automated, Integrated, Migrated, or Delivered.
 16. Do not include the last name `Boorla` anywhere in the generated resume JSON, file name, or visible resume content. Use `Akanksh B` for the candidate name when needed and `Akanksh_[TargetCompany]_[RoleTitle]` for file names.
 17. End every summary bullet, client responsibility bullet, and complete sentence with a full stop/period.
-18. Do not end any Professional Summary bullet with a semicolon; every rendered summary bullet must end with a period only.
+18. Do not use semicolons in any Professional Summary bullet; every rendered summary bullet must end with a period only.
 
 ## Output Format
 
@@ -97,7 +97,9 @@ Return only valid JSON. No preamble and no markdown fence.
   },
   "contactLocation": "Frisco, TX",
   "jobTitle": "Exact Job Title from JD",
-  "professionalSummary": "12-15 summary bullets in one string, separated by semicolons so each item renders on a new bullet line; each summary bullet should be 2-3 resume lines long at Calibri 11 pt with natural JD keyword density and truthful profile alignment",
+  "professionalSummary": [
+    "12-15 summary bullets as array items, formatted like client responsibilities; each summary bullet should be 2-3 resume lines long at Calibri 11 pt with natural JD keyword density and truthful profile alignment."
+  ],
   "skills": {
     "Category Name": ["skill1", "skill2"]
   },
