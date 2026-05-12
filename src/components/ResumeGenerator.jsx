@@ -42,14 +42,18 @@ function normalizeTextList(value) {
 }
 
 function normalizeSummaryBullets(value) {
-  if (Array.isArray(value) || (value && typeof value === 'object')) return normalizeTextList(value)
+  const cleanSummaryItem = (item) => valueToText(item).replace(/;/g, ',').replace(/[,:]+$/, '').trim()
+
+  if (Array.isArray(value) || (value && typeof value === 'object')) {
+    return normalizeTextList(value).map(cleanSummaryItem).filter(Boolean)
+  }
 
   const text = valueToText(value)
   if (!text) return []
 
   return text
     .split(/\s*(?:;|\n|(?:^|\s)[•-]\s+|\d+\.\s+)/)
-    .map((item) => item.trim().replace(/^[-•]\s*/, '').replace(/[;:]+$/, '').trim())
+    .map((item) => cleanSummaryItem(item.trim().replace(/^[-•]\s*/, '')))
     .filter(Boolean)
 }
 

@@ -84,11 +84,13 @@ function ensureFullStop(value) {
 }
 
 function normalizeSummaryBullets(value) {
-  if (Array.isArray(value)) return normalizeList(value)
+  const cleanSummaryItem = (item) => valueToText(item).replace(/;/g, ',').replace(/[,:]+$/, '').trim()
+
+  if (Array.isArray(value)) return normalizeList(value).map(cleanSummaryItem).filter(Boolean)
 
   return valueToText(value)
     .split(/\s*(?:;|\n|(?:^|\s)[•-]\s+|\d+\.\s+)/)
-    .map((item) => item.trim().replace(/^[-•]\s*/, '').replace(/[;:]+$/, '').trim())
+    .map((item) => cleanSummaryItem(item.trim().replace(/^[-•]\s*/, '')))
     .filter(Boolean)
 }
 
