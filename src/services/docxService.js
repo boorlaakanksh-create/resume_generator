@@ -77,6 +77,15 @@ function normalizeList(value) {
   return text ? [text] : []
 }
 
+function normalizeSummaryBullets(value) {
+  if (Array.isArray(value)) return normalizeList(value)
+
+  return valueToText(value)
+    .split(';')
+    .map((item) => item.trim().replace(/^[-•]\s*/, ''))
+    .filter(Boolean)
+}
+
 function createSectionHeader(text) {
   return new Paragraph({
     children: [
@@ -237,19 +246,10 @@ const docxService = {
 
     if (resumeData.summary) {
       sections.push(createSectionHeader('PROFESSIONAL SUMMARY'))
-      if (Array.isArray(resumeData.summary)) {
-        normalizeList(resumeData.summary).forEach((summaryItem, index, summaryItems) => {
-          sections.push(createBulletParagraph(summaryItem, index === summaryItems.length - 1))
-        })
-      } else {
-        sections.push(
-          new Paragraph({
-            children: buildTextRuns(resumeData.summary),
-            spacing: { after: 100, line: 240 },
-            alignment: AlignmentType.BOTH
-          })
-        )
-      }
+      const summaryItems = normalizeSummaryBullets(resumeData.summary)
+      summaryItems.forEach((summaryItem, index) => {
+        sections.push(createBulletParagraph(summaryItem, index === summaryItems.length - 1))
+      })
     }
 
     if (resumeData.skills && Object.keys(resumeData.skills).length > 0) {
@@ -605,11 +605,7 @@ const docxService = {
 
     if (resumeData.summary) {
       drawSectionHeader('PROFESSIONAL SUMMARY')
-      if (Array.isArray(resumeData.summary)) {
-        drawBullets(normalizeList(resumeData.summary))
-      } else {
-        drawWrappedText(resumeData.summary, { lineHeight: 14, after: 4 })
-      }
+      drawBullets(normalizeSummaryBullets(resumeData.summary))
     }
 
     if (resumeData.skills && Object.keys(resumeData.skills).length > 0) {
