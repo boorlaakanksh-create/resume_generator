@@ -40,10 +40,10 @@ The app supplies contact details. Do not include contact info in JSON output.
 
 Use these exact timelines when the JD asks for 3+, 4+, 5+, or 6+ years:
 
-- **3+ years:** current client `Oct 2024 - May 2026`, previous client `Sep 2023 - Oct 2024`, early client `Jul 2021 - Aug 2022`.
+- **3+ years:** current client `Oct 2024 - Present`, previous client `Sep 2023 - Oct 2024`, early client `Jul 2021 - Aug 2022`.
 - **4+ years:** current client `Jun 2024 - Present`, previous client `May 2023 - Jun 2024`, early client `Jan 2021 - Aug 2022`.
 - **5+ years:** current client `Jun 2024 - Present`, previous client `Sep 2022 - Jun 2024`, early client `Dec 2020 - Aug 2022`.
-- **6+ years:** current client `Jun 2024 - May 2026`, previous client `Sep 2022 - Jun 2024`, early client `Jun 2020 - Aug 2022`.
+- **6+ years:** current client `Jun 2024 - Present`, previous client `Sep 2022 - Jun 2024`, early client `Jun 2020 - Aug 2022`.
 
 For JD requirements above 6+ years, create a conservative three-project timeline that still uses exactly 3 projects and extends earlier project dates only as much as needed to support the JD requirement.
 
@@ -137,7 +137,7 @@ Common ERP platforms:
 
 Absolute enforcement:
 
-- Each project must contain 18-20 bullets.
+- Each project must contain 12-15 bullets.
 - Every bullet must be 2.5-3 full resume lines long.
 - No bullet may be shorter than 2 full lines.
 - Bold important JD-critical skills, tools, transaction sets, protocols, ERP terms, and responsibilities inside every client responsibility bullet using markdown bold syntax.
@@ -187,7 +187,7 @@ After writing the resume:
 - Clearly list JD items that are partially covered or missing.
 - Suggest only minimal, safe keyword fixes.
 - Confirm that exactly 3 projects were created.
-- Confirm that each project has 18-20 bullets.
+- Confirm that each project has 12-15 bullets.
 - Confirm that every project bullet is at least 2.5-3 resume lines long.
 - Confirm that each project uses only one EDI platform and only one ERP platform.
 - Confirm that no selected client is the applying company, an affiliate, or government-related.
@@ -218,7 +218,7 @@ Return clean, professional resume content in valid JSON for the resume generator
       "dates": "Realistic dates based on JD years and role level",
       "ediPlatform": "Only one EDI platform for this project",
       "erpPlatform": "Only one ERP platform for this project",
-      "achievements": ["18-20 technical responsibility bullets. Each bullet must be 2.5-3 resume lines long and must end with a period."]
+      "achievements": ["12-15 technical responsibility bullets. Each bullet must be 2.5-3 resume lines long and must end with a period."]
     }
   ],
   "atsReview": {
@@ -227,7 +227,7 @@ Return clean, professional resume content in valid JSON for the resume generator
     "minimalSafeKeywordFixes": ["Minimal safe fix"],
     "finalChecks": [
       "Exactly 3 projects created.",
-      "Each project has 18-20 bullets.",
+      "Each project has 12-15 bullets.",
       "Every bullet is at least 2.5-3 resume lines long.",
       "Each project uses only one EDI platform and only one ERP platform.",
       "No selected client is the applying company, affiliate, or government-related."
