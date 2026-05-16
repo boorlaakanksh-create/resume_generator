@@ -89,8 +89,8 @@ export const RESUME_PROFILES = [
   },
   {
     id: 'edi',
-    label: 'EDI',
-    shortLabel: 'EDI',
+    label: 'EDI - JD Tailored',
+    shortLabel: 'EDI JD',
     summary: 'JD-tailored EDI profile across ANSI X12, EDIFACT, EDI/ERP platforms, trading partner onboarding, mappings, SAP IDocs where required, AS2/SFTP/FTP, production support, monitoring, documentation, and domain-specific enterprise integrations.',
     personalInfo: {
       name: 'Akanksh B',
