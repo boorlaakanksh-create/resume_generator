@@ -69,6 +69,27 @@ export const RESUME_PROFILES = [
     ]
   },
   {
+    id: 'edi-10yr',
+    label: 'EDI - 10 Years',
+    shortLabel: 'EDI 10yr',
+    summary: 'Senior EDI integration profile with 10 years across ANSI X12, EDIFACT, IBM Sterling B2B Integrator, Gentran, AS2/SFTP, partner onboarding, mapping, acknowledgments, healthcare claims, banking integrations, SQL, Java, APIs, AWS, and production support.',
+    personalInfo: {
+      name: 'Akanksh B',
+      phone: '+1 (669) 999-0358',
+      email: 'bakanksh9999@gmail.com',
+      linkedin: ''
+    },
+    education: [],
+    certifications: [],
+    clientProjects: [
+      'Truist Bank - EDI partner integrations, X12 transaction processing, AS2/SFTP, and production support',
+      'Charles Schwab - Trading and portfolio integration workflows with EDI mapping, acknowledgments, and secure file exchange',
+      'M&T Bank - Legacy EDI modernization, partner onboarding, and B2B integration support',
+      'Comcast - Media billing and order integration workflows using EDI maps, SQL validation, and scheduled file processing',
+      'Centene - Healthcare EDI claims, eligibility, acknowledgments, and X12 transaction support'
+    ]
+  },
+  {
     id: 'java-full-stack-5yr',
     label: 'Java Full Stack - 5 Years',
     shortLabel: 'Java Full Stack 5yr',
