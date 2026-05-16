@@ -198,11 +198,6 @@ const docxService = {
       }))
     }
 
-    if (resumeData.contactLocation) {
-      pushSeparator()
-      contactChildren.push(new TextRun({ text: resumeData.contactLocation, font: FONT, size: SMALL_SIZE, color: '000000' }))
-    }
-
     const links = [
       personalInfo.linkedin,
       personalInfo.github,
@@ -589,7 +584,6 @@ const docxService = {
 
     if (personalInfo.phone) contactParts.push(personalInfo.phone)
     if (personalInfo.email) contactParts.push(personalInfo.email)
-    if (resumeData.contactLocation) contactParts.push(resumeData.contactLocation)
     ;[personalInfo.linkedin, personalInfo.github, personalInfo.website]
       .filter(Boolean)
       .forEach((item) => contactParts.push(item.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')))
