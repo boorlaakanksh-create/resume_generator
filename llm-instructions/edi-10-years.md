@@ -109,11 +109,18 @@ Common ERP platforms:
 - Write a Professional Summary aligned to the JD.
 - Mention total years of experience correctly based on the JD requirement.
 - Use 5-6 summary lines or bullets.
-- Bold only JD-critical phrases.
+- Bold important JD-critical phrases in every summary bullet using markdown bold syntax, such as `**EDI production support**`, `**SAP IDocs**`, `**AS2**`, or the exact platform named in the JD.
+- Bold only JD-critical phrases, tools, transaction sets, protocols, ERP terms, and responsibilities. Do not bold filler words or entire bullets.
 - Explicitly include what the JD explicitly asks for, such as EDI platform, ERP platform, tools, transaction sets, protocols, SAP EDI-related configuration, SAP IDocs, order-to-cash lifecycle, or EDI production operations.
 - If the JD does not require SAP, SAP IDocs, or order-to-cash, do not include those items.
 - Do not use semicolons anywhere in the Professional Summary.
 - Every summary bullet must end with a period.
+
+## Client Role Title Rules
+
+- Each project role title must match the JD level and use the most relevant JD role wording.
+- Important role keywords such as EDI, B2B Integration, SAP EDI, EDI Analyst, EDI Developer, Production Support, Lead, Senior, or Architect must appear only when supported by the JD.
+- The resume generator bolds role titles in the experience header, so do not add manual markdown bold symbols inside the `position` field.
 
 ## Professional Skills Rules
 
@@ -131,7 +138,8 @@ Absolute enforcement:
 - Each project must contain 18-20 bullets.
 - Every bullet must be 2.5-3 full resume lines long.
 - No bullet may be shorter than 2 full lines.
-- Bold only JD-critical skills or responsibilities inside bullets.
+- Bold important JD-critical skills, tools, transaction sets, protocols, ERP terms, and responsibilities inside every client responsibility bullet using markdown bold syntax.
+- Each responsibility bullet must contain at least one bolded JD-critical phrase, but do not bold full sentences or generic wording.
 - The current project must strongly align with the JD and cover all mandatory skills.
 - Each bullet must explain how Akanksh used the skill or tool, what issue or business need it addressed, and how it improved, fixed, supported, validated, automated, integrated, monitored, or stabilized the project.
 - Keep bullets technical, professional, ATS-friendly, and specific.
