@@ -27,6 +27,7 @@ The app supplies contact details. Do not include contact info in JSON output.
 ## Experience and Timeline Rules
 
 - Total years of experience must be based on the JD requirement and role level, not a fixed profile value.
+- Maximum allowed displayed experience is 6+ years. If the JD asks for 7+, 8+, 9+, 10+, or any requirement above 6 years, still represent the resume as 6+ years and use the 6+ timeline.
 - If the JD says 6+ years, represent a realistic 6+ year background.
 - If the JD says 5+ years, represent a realistic 5+ year background.
 - If the JD says 4+ years, represent a realistic 4+ year background.
@@ -45,7 +46,7 @@ Use these exact timelines when the JD asks for 3+, 4+, 5+, or 6+ years:
 - **5+ years:** current client `Jun 2024 - Present`, previous client `Sep 2022 - Jun 2024`, early client `Dec 2020 - Aug 2022`.
 - **6+ years:** current client `Jun 2024 - Present`, previous client `Sep 2022 - Jun 2024`, early client `Jun 2020 - Aug 2022`.
 
-For JD requirements above 6+ years, create a conservative three-project timeline that still uses exactly 3 projects and extends earlier project dates only as much as needed to support the JD requirement.
+For JD requirements above 6+ years, do not extend the timeline beyond 6+ years. Use the exact 6+ timeline and mention 6+ years in the Professional Summary.
 
 ## Education Rules
 
