@@ -19,8 +19,8 @@ If the JD does not provide the company name or there is not enough information t
 ## Contact Source
 
 - **Name:** Akanksh B
-- **Phone:** +1 (669) 999-0358
-- **Email:** bakanksh9999@gmail.com
+- **Phone:** +1 (940) 977-1112
+- **Email:** akankshk737@gmail.com
 
 The app supplies contact details. Do not include contact info in JSON output.
 

@@ -94,8 +94,8 @@ export const RESUME_PROFILES = [
     summary: 'JD-tailored EDI profile across ANSI X12, EDIFACT, EDI/ERP platforms, trading partner onboarding, mappings, SAP IDocs where required, AS2/SFTP/FTP, production support, monitoring, documentation, and domain-specific enterprise integrations.',
     personalInfo: {
       name: 'Akanksh B',
-      phone: '+1 (669) 999-0358',
-      email: 'bakanksh9999@gmail.com',
+      phone: '+1 (940) 977-1112',
+      email: 'akankshk737@gmail.com',
       linkedin: ''
     },
     education: AKANKSH_EDUCATION_NO_YEARS,
