@@ -58,6 +58,8 @@ function normalizeSummaryBullets(value) {
 }
 
 function normalizeParsedResume(parsed) {
+  const summaryFormat = parsed.summaryFormat === 'paragraph' ? 'paragraph' : 'bullets'
+
   return {
     ...parsed,
     resumeMeta: {
@@ -66,7 +68,10 @@ function normalizeParsedResume(parsed) {
     },
     contactLocation: valueToText(parsed.contactLocation),
     jobTitle: valueToText(parsed.jobTitle),
-    professionalSummary: normalizeSummaryBullets(parsed.professionalSummary),
+    professionalSummary: summaryFormat === 'paragraph'
+      ? valueToText(parsed.professionalSummary).replace(/;/g, ',').trim()
+      : normalizeSummaryBullets(parsed.professionalSummary),
+    summaryFormat,
     skills: Object.fromEntries(
       Object.entries(parsed.skills || {}).map(([category, skills]) => [
         valueToText(category),
@@ -127,6 +132,7 @@ export default function ResumeGenerator() {
     contactLocation: effectiveParsedData.contactLocation || '',
     jobTitle: effectiveParsedData.jobTitle || '',
     professionalSummary: effectiveParsedData.professionalSummary,
+    summaryFormat: effectiveParsedData.summaryFormat,
     skills: effectiveParsedData.skills,
     workExperience: effectiveParsedData.workExperience
   })
@@ -136,6 +142,7 @@ export default function ResumeGenerator() {
     contactLocation: effectiveParsedData.contactLocation || 'Frisco, TX',
     jobTitle: effectiveParsedData.jobTitle || '',
     summary: effectiveParsedData.professionalSummary,
+    summaryFormat: effectiveParsedData.summaryFormat || (selectedProfile.id === 'edi' ? 'paragraph' : 'bullets'),
     skills: effectiveParsedData.skills,
     experience: effectiveParsedData.workExperience,
     education: selectedProfile.education,

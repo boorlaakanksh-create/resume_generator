@@ -249,10 +249,20 @@ const docxService = {
 
     if (resumeData.summary) {
       sections.push(createSectionHeader('PROFESSIONAL SUMMARY'))
-      const summaryItems = normalizeSummaryBullets(resumeData.summary)
-      summaryItems.forEach((summaryItem, index) => {
-        sections.push(createBulletParagraph(summaryItem, index === summaryItems.length - 1))
-      })
+      if (resumeData.summaryFormat === 'paragraph') {
+        sections.push(
+          new Paragraph({
+            children: buildTextRuns(resumeData.summary),
+            spacing: { after: 100, line: 240 },
+            alignment: AlignmentType.BOTH
+          })
+        )
+      } else {
+        const summaryItems = normalizeSummaryBullets(resumeData.summary)
+        summaryItems.forEach((summaryItem, index) => {
+          sections.push(createBulletParagraph(summaryItem, index === summaryItems.length - 1))
+        })
+      }
     }
 
     if (resumeData.skills && Object.keys(resumeData.skills).length > 0) {
@@ -607,7 +617,11 @@ const docxService = {
 
     if (resumeData.summary) {
       drawSectionHeader('PROFESSIONAL SUMMARY')
-      drawBullets(normalizeSummaryBullets(resumeData.summary))
+      if (resumeData.summaryFormat === 'paragraph') {
+        drawWrappedText(resumeData.summary, { lineHeight: 14, after: 4 })
+      } else {
+        drawBullets(normalizeSummaryBullets(resumeData.summary))
+      }
     }
 
     if (resumeData.skills && Object.keys(resumeData.skills).length > 0) {

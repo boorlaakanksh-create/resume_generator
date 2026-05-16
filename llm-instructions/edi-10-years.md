@@ -110,13 +110,13 @@ Common ERP platforms:
 
 - Write a Professional Summary aligned to the JD.
 - Mention total years of experience correctly based on the JD requirement.
-- Use 5-6 summary lines or bullets.
-- Bold important JD-critical phrases in every summary bullet using markdown bold syntax, such as `**EDI production support**`, `**SAP IDocs**`, `**AS2**`, or the exact platform named in the JD.
-- Bold only JD-critical phrases, tools, transaction sets, protocols, ERP terms, and responsibilities. Do not bold filler words or entire bullets.
+- Write the Professional Summary as one paragraph with 5-6 strong sentences, not bullets.
+- Bold important JD-critical phrases in the paragraph using markdown bold syntax, such as `**EDI production support**`, `**SAP IDocs**`, `**AS2**`, or the exact platform named in the JD.
+- Bold only JD-critical phrases, tools, transaction sets, protocols, ERP terms, and responsibilities. Do not bold filler words or the entire paragraph.
 - Explicitly include what the JD explicitly asks for, such as EDI platform, ERP platform, tools, transaction sets, protocols, SAP EDI-related configuration, SAP IDocs, order-to-cash lifecycle, or EDI production operations.
 - If the JD does not require SAP, SAP IDocs, or order-to-cash, do not include those items.
 - Do not use semicolons anywhere in the Professional Summary.
-- Every summary bullet must end with a period.
+- Every sentence in the Professional Summary must end with a period.
 
 ## Client Role Title Rules
 
@@ -204,9 +204,8 @@ Return clean, professional resume content in valid JSON for the resume generator
   },
   "contactLocation": "Frisco, TX",
   "jobTitle": "Exact Job Title from JD",
-  "professionalSummary": [
-    "5-6 JD-aligned summary bullets. Mention correct total years from the JD. Bold only JD-critical phrases. Do not use semicolons. End every bullet with a period."
-  ],
+  "summaryFormat": "paragraph",
+  "professionalSummary": "5-6 JD-aligned summary sentences in one paragraph. Mention correct total years from the JD. Bold only JD-critical phrases. Do not use semicolons. End every sentence with a period.",
   "skills": {
     "Category Name": ["skill1", "skill2"]
   },
