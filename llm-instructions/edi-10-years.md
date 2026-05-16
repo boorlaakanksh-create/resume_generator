@@ -28,14 +28,29 @@ The app supplies contact details. Do not include contact info in JSON output.
 
 - Total years of experience must be based on the JD requirement and role level, not a fixed profile value.
 - If the JD says 5+ years, represent a realistic 5+ year background.
-- If the JD says 7+ years, represent a realistic 7+ year background.
-- If the JD says 10+ years, represent a realistic 10+ year background.
+- If the JD says 4+ years, represent a realistic 4+ year background.
+- If the JD says 3+ years, represent a realistic 3+ year background.
 - If the JD does not state years, infer a conservative experience level from the role title and responsibilities.
 - Build exactly 3 project experiences for the resume.
 - Keep the timeline realistic and background-check-safe, with the current project listed first and marked Present.
 - Change project dates and role progression based on the JD level for each resume.
 - Use Senior, Lead, or Architect only if the JD explicitly uses that title.
 - Otherwise, use realistic titles such as EDI Developer, EDI Analyst, EDI Integration Developer, B2B Integration Developer, SAP EDI Analyst, or EDI Support Analyst.
+
+Use these exact timelines when the JD asks for 3+, 4+, or 5+ years:
+
+- **3+ years:** current client `Jun 2024 - Present`, previous client `May 2023 - Jun 2024`, early client `Jul 2021 - Aug 2022`.
+- **4+ years:** current client `Jun 2024 - Present`, previous client `May 2023 - Jun 2024`, early client `Jan 2021 - Aug 2022`.
+- **5+ years:** current client `Jun 2024 - Present`, previous client `Sep 2022 - Jun 2024`, early client `Dec 2020 - Aug 2022`.
+
+For JD requirements above 5+ years, create a conservative three-project timeline that still uses exactly 3 projects, keeps the current project as `Jun 2024 - Present`, and extends earlier project dates only as much as needed to support the JD requirement.
+
+## Education Rules
+
+Use only this education section and do not include graduation years, pass-out years, date ranges, GPA, or locations:
+
+- University of North Texas — Master of Science in Information Systems and Technology
+- Mahatma Gandhi Institute of Technology — Bachelor of Technology in Information Technology
 
 ## Dynamic Client Selection Rules
 

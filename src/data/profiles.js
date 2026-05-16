@@ -17,6 +17,25 @@ const AKANKSH_GRADUATE_EDUCATION = [
   }
 ]
 
+const AKANKSH_EDUCATION_NO_YEARS = [
+  {
+    school: 'University of North Texas',
+    degree: 'Master of Science',
+    field: 'Information Systems and Technology',
+    year: '',
+    location: '',
+    gpa: ''
+  },
+  {
+    school: 'Mahatma Gandhi Institute of Technology',
+    degree: 'Bachelor of Technology',
+    field: 'Information Technology',
+    year: '',
+    location: '',
+    gpa: ''
+  }
+]
+
 const AKANKSH_DATA_EDUCATION = [
   {
     school: 'University of North Texas',
@@ -79,7 +98,7 @@ export const RESUME_PROFILES = [
       email: 'bakanksh9999@gmail.com',
       linkedin: ''
     },
-    education: [],
+    education: AKANKSH_EDUCATION_NO_YEARS,
     certifications: [],
     clientProjects: [
       'Dynamic client 1 - Current domain-specific US enterprise client selected from JD context',
