@@ -65,6 +65,34 @@ const AWS_DATA_ENGINEER_CERTIFICATION = [
   }
 ]
 
+const AKANKSH_JAVA_8_YEAR_EDUCATION = [
+  {
+    school: 'University of North Texas',
+    degree: 'Master of Science',
+    field: 'Information Systems & Technology',
+    year: '',
+    location: 'Denton, TX',
+    gpa: ''
+  }
+]
+
+const JAVA_8_YEAR_CERTIFICATIONS = [
+  {
+    name: 'AWS Certified Developer Associate',
+    status: '',
+    credentialId: '',
+    certificationNumber: '',
+    earnedOn: ''
+  },
+  {
+    name: 'Azure Developer Associate',
+    status: '',
+    credentialId: '',
+    certificationNumber: '',
+    earnedOn: ''
+  }
+]
+
 export const RESUME_PROFILES = [
   {
     id: 'java-full-stack-10yr',
@@ -85,6 +113,26 @@ export const RESUME_PROFILES = [
       'M&T Bank - Monolith-to-microservices modernization',
       'Comcast - Media delivery backend services',
       'Centene - Healthcare claims processing systems'
+    ]
+  },
+  {
+    id: 'java-full-stack-8yr',
+    label: 'Java Full Stack - 8 Years',
+    shortLabel: 'Java Full Stack 8yr',
+    summary: 'Senior Java Full Stack Developer profile with nearly 8 years across Java 8/11/17, Spring Boot, microservices, REST APIs, React, Angular, AWS, Azure DevOps, Kafka, SQL databases, CI/CD, testing, monitoring, and production support.',
+    personalInfo: {
+      name: 'Akanksh Gupta',
+      phone: '+1 (940) 567-8548',
+      email: 'akankshb123@gmail.com',
+      linkedin: ''
+    },
+    education: AKANKSH_JAVA_8_YEAR_EDUCATION,
+    certifications: JAVA_8_YEAR_CERTIFICATIONS,
+    clientProjects: [
+      'Citi Bank - Java 17, Spring Boot, React, Kafka, AWS, Kubernetes, Oracle, PostgreSQL, Jenkins, GitHub Actions, Splunk, Dynatrace, and CloudWatch',
+      'Maximus Health - Java 11, Spring Boot, React, Kafka, AWS Lambda, ECS, S3, RDS, CloudWatch, Docker, Kubernetes, Oracle, PostgreSQL, JUnit, Mockito, Selenium, and Cucumber',
+      'PNC Bank - Java 8, Spring Boot, Angular, Azure DevOps, Azure Active Directory, Kafka, Oracle, SQL Server, Docker, Jenkins, Maven, Splunk, JUnit, Mockito, and Postman',
+      'FactSet - Java, Spring MVC, Hibernate, REST APIs, SQL, Oracle, SQL Server, JavaScript, HTML5, CSS3, Bootstrap, JSP, Git, Maven, and Postman'
     ]
   },
   {

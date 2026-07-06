@@ -1,4 +1,5 @@
 import { Redis } from '@upstash/redis'
+import { requireAuthenticatedSession } from './_lib/auth.js'
 
 let redis
 
@@ -62,6 +63,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     return res.status(200).end()
   }
+
+  if (!requireAuthenticatedSession(req, res)) return
 
   try {
     const redis = getRedis()

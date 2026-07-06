@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, Download, RotateCcw, Save } from 'lucide-react'
+import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, Download, FileText, RotateCcw, Save, Send, X } from 'lucide-react'
 import { DEFAULT_PROFILE_ID, getProfileById, RESUME_PROFILES } from '../data/profiles'
 
 function camelToSpaces(str) {
@@ -111,6 +111,20 @@ export default function ResumeGenerator() {
   const [saveStatus, setSaveStatus] = useState(null)
   const [saveError, setSaveError] = useState('')
   const [downloadError, setDownloadError] = useState('')
+  const [showVendorModal, setShowVendorModal] = useState(false)
+  const [vendorSubmitting, setVendorSubmitting] = useState(false)
+  const [vendorSuccess, setVendorSuccess] = useState(false)
+  const [vendorError, setVendorError] = useState('')
+  const [vendorForm, setVendorForm] = useState({
+    submissionDate: new Date().toISOString().split('T')[0],
+    vendorCompany: '',
+    rtrAmount: '',
+    pocName: '',
+    pocEmail: '',
+    clientName: '',
+    status: 'Waiting for Response',
+    phone: ''
+  })
 
   const selectedProfile = getProfileById(selectedProfileId)
   const effectiveParsedData = parsedData
@@ -118,6 +132,11 @@ export default function ResumeGenerator() {
   const hasParsedData = Boolean(effectiveParsedData)
   const hasJobDescription = Boolean(jobDescription.trim())
   const canDownload = hasParsedData
+  const canDownloadCoverLetter = hasParsedData && (
+    Array.isArray(effectiveParsedData?.coverLetter)
+      ? effectiveParsedData.coverLetter.length > 0
+      : Boolean(effectiveParsedData?.coverLetter)
+  )
   const canSave = hasParsedData && hasJobDescription && saveStatus !== 'saving' && saveStatus !== 'saved'
 
   const loadDocxService = async () => {
@@ -134,7 +153,8 @@ export default function ResumeGenerator() {
     professionalSummary: effectiveParsedData.professionalSummary,
     summaryFormat: effectiveParsedData.summaryFormat,
     skills: effectiveParsedData.skills,
-    workExperience: effectiveParsedData.workExperience
+    workExperience: effectiveParsedData.workExperience,
+    coverLetter: effectiveParsedData.coverLetter
   })
 
   const buildResumeData = () => ({
@@ -220,6 +240,20 @@ export default function ResumeGenerator() {
     }
   }
 
+  const handleDownloadCoverLetter = async () => {
+    const paragraphs = effectiveParsedData?.coverLetter
+    if (!paragraphs) return
+    setDownloadError('')
+
+    try {
+      const docxService = await loadDocxService()
+      await docxService.generateCoverLetterPdf(buildResumeData(), paragraphs, effectiveParsedData.resumeMeta.fileName)
+    } catch (err) {
+      console.error(err)
+      setDownloadError('Failed to generate cover letter PDF. Please try again.')
+    }
+  }
+
   const handleSaveToTracker = async () => {
     if (!hasParsedData) return
 
@@ -270,6 +304,88 @@ export default function ResumeGenerator() {
     }
   }
 
+  const parseSignature = (text) => {
+    if (!text) return {}
+
+    const emailMatches = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || []
+    const phones = []
+    const seen = new Set()
+    const phoneRegex = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/g
+    let phoneMatch
+
+    while ((phoneMatch = phoneRegex.exec(text)) !== null) {
+      const normalized = phoneMatch[0].replace(/\D/g, '').slice(-10)
+      if (!seen.has(normalized)) {
+        seen.add(normalized)
+        phones.push(phoneMatch[0].trim())
+      }
+      if (phones.length >= 2) break
+    }
+
+    const signatureIndex = text.search(/\b(best regards|regards|thanks|sincerely|cheers|warm regards|thank you|best|kind regards)[,\s]*\n/i)
+    const block = signatureIndex >= 0 ? text.slice(signatureIndex) : text.slice(Math.max(0, text.length - 600))
+    const skipLine = [
+      /^(best regards|regards|thanks|sincerely|cheers|warm regards|thank you|best|kind regards)/i,
+      /@/,
+      /^\+?\d/,
+      /^(phone|mobile|direct|office|fax|tel|www\.|http|linkedin|p:|m:|d:|o:|f:)/i,
+      /[<>[\]]/,
+      /^\s*[-_=*]+\s*$/
+    ]
+    const signatureLines = block
+      .split('\n')
+      .map((line) => line.replace(/\|/g, '').trim())
+      .filter((line) => line.length > 1 && line.length < 80)
+      .filter((line) => !skipLine.some((regex) => regex.test(line)))
+
+    return {
+      pocEmail: emailMatches[0] || '',
+      phone: phones.join(' / '),
+      pocName: signatureLines[0] || '',
+      vendorCompany: signatureLines.find((line, index) => index > 0 && line.length > 2) || ''
+    }
+  }
+
+  const handleVendorSubmit = async (event) => {
+    event.preventDefault()
+    setVendorSubmitting(true)
+    setVendorSuccess(false)
+    setVendorError('')
+
+    try {
+      const res = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...vendorForm,
+          fileName: effectiveParsedData?.resumeMeta?.fileName || '',
+          profileId: selectedProfile.id,
+          resumeJson: hasParsedData ? buildStoredResumeJson() : null,
+          jobDescription: jobDescription || ''
+        })
+      })
+
+      if (!res.ok) throw new Error('API error')
+
+      setVendorSuccess(true)
+      window.dispatchEvent(new CustomEvent('submission-logged'))
+      setVendorForm({
+        submissionDate: new Date().toISOString().split('T')[0],
+        vendorCompany: '',
+        rtrAmount: '',
+        pocName: '',
+        pocEmail: '',
+        clientName: '',
+        status: 'Waiting for Response',
+        phone: ''
+      })
+    } catch {
+      setVendorError('Failed to log submission. Please try again.')
+    } finally {
+      setVendorSubmitting(false)
+    }
+  }
+
   const handleReset = () => {
     setRawJson('')
     setJobDescription('')
@@ -279,6 +395,8 @@ export default function ResumeGenerator() {
     setSaveStatus(null)
     setSaveError('')
     setDownloadError('')
+    setVendorSuccess(false)
+    setVendorError('')
   }
 
   const fileName = effectiveParsedData?.resumeMeta?.fileName || 'Resume details will appear here after parsing.'
@@ -286,8 +404,97 @@ export default function ResumeGenerator() {
   const { company, role } = hasParsedData
     ? parseFileName(effectiveParsedData.resumeMeta.fileName)
     : { company: '', role: '' }
+  const vendorStatusOptions = ['Waiting for Response', 'Not Moving Forward', 'Interview', 'Not Chosen', 'Offer']
+  const updateVendorField = (field) => (event) => setVendorForm((prev) => ({ ...prev, [field]: event.target.value }))
+  const inputClassName = 'w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500'
+  const labelClassName = 'mb-1 block text-xs font-medium text-slate-400'
 
   return (
+    <>
+    {showVendorModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+        <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-slate-700 px-6 py-4">
+            <h3 className="text-base font-semibold text-white">Log Vendor Submission</h3>
+            <button
+              onClick={() => {
+                setShowVendorModal(false)
+                setVendorSuccess(false)
+                setVendorError('')
+              }}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-800 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <form onSubmit={handleVendorSubmit} className="space-y-4 px-6 py-5">
+            {jobDescription.trim() && (
+              <button
+                type="button"
+                onClick={() => {
+                  const parsed = parseSignature(jobDescription)
+                  setVendorForm((prev) => ({
+                    ...prev,
+                    ...Object.fromEntries(Object.entries(parsed).filter(([, value]) => value))
+                  }))
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-700/50 bg-indigo-900/20 py-2 text-xs font-medium text-indigo-400 transition hover:bg-indigo-900/40"
+              >
+                Auto-fill from JD Signature
+              </button>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelClassName}>Submission Date *</label>
+                <input type="date" required value={vendorForm.submissionDate} onChange={updateVendorField('submissionDate')} className={inputClassName} />
+              </div>
+              <div>
+                <label className={labelClassName}>RTR Amount *</label>
+                <input type="text" required placeholder="e.g. $55/hr C2C" value={vendorForm.rtrAmount} onChange={updateVendorField('rtrAmount')} className={inputClassName} />
+              </div>
+            </div>
+            <div>
+              <label className={labelClassName}>Vendor Company *</label>
+              <input type="text" required placeholder="Vendor company name" value={vendorForm.vendorCompany} onChange={updateVendorField('vendorCompany')} className={inputClassName} />
+            </div>
+            <div>
+              <label className={labelClassName}>Client Name *</label>
+              <input type="text" required placeholder="End client name" value={vendorForm.clientName} onChange={updateVendorField('clientName')} className={inputClassName} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelClassName}>POC Name *</label>
+                <input type="text" required placeholder="Point of contact" value={vendorForm.pocName} onChange={updateVendorField('pocName')} className={inputClassName} />
+              </div>
+              <div>
+                <label className={labelClassName}>POC Email *</label>
+                <input type="email" required placeholder="poc@vendor.com" value={vendorForm.pocEmail} onChange={updateVendorField('pocEmail')} className={inputClassName} />
+              </div>
+            </div>
+            <div>
+              <label className={labelClassName}>Phone (use / to separate two numbers)</label>
+              <input type="text" placeholder="(214) 555-0123 / (972) 555-9876" value={vendorForm.phone} onChange={updateVendorField('phone')} className={inputClassName} />
+            </div>
+            <div>
+              <label className={labelClassName}>Status</label>
+              <select value={vendorForm.status} onChange={updateVendorField('status')} className={inputClassName}>
+                {vendorStatusOptions.map((status) => <option key={status} value={status}>{status}</option>)}
+              </select>
+            </div>
+            {vendorSuccess && <p className="text-sm text-emerald-400">Submission logged successfully!</p>}
+            {vendorError && <p className="text-sm text-red-400">{vendorError}</p>}
+            <button
+              type="submit"
+              disabled={vendorSubmitting}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3 text-sm font-semibold text-white transition hover:bg-teal-600 disabled:opacity-50"
+            >
+              <Send className="h-4 w-4" />
+              {vendorSubmitting ? 'Logging...' : 'Log Submission'}
+            </button>
+          </form>
+        </div>
+      </div>
+    )}
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <div className="space-y-6">
         <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-sm">
@@ -524,7 +731,7 @@ export default function ResumeGenerator() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <button
               onClick={handleDownload}
               disabled={!canDownload}
@@ -535,7 +742,7 @@ export default function ResumeGenerator() {
               }`}
             >
               <Download className="h-4 w-4" />
-              Download DOCX
+              DOCX
             </button>
 
             <button
@@ -548,9 +755,38 @@ export default function ResumeGenerator() {
               }`}
             >
               <Download className="h-4 w-4" />
-              Download PDF File
+              PDF File
+            </button>
+
+            <button
+              onClick={handleDownloadCoverLetter}
+              disabled={!canDownloadCoverLetter}
+              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3 font-medium transition-colors ${
+                canDownloadCoverLetter
+                  ? 'bg-violet-700 text-white hover:bg-violet-600'
+                  : 'cursor-not-allowed bg-slate-800 text-slate-500'
+              }`}
+            >
+              <FileText className="h-4 w-4" />
+              Cover Letter
             </button>
           </div>
+
+          <button
+            onClick={() => {
+              setShowVendorModal(true)
+              setVendorSuccess(false)
+            }}
+            disabled={!hasParsedData || !hasJobDescription}
+            className={`flex w-full items-center justify-center gap-2 rounded-2xl border py-3 text-sm font-medium transition ${
+              hasParsedData && hasJobDescription
+                ? 'border-teal-800/50 bg-teal-900/20 text-teal-400 hover:bg-teal-900/40'
+                : 'cursor-not-allowed border-slate-800 bg-slate-900 text-slate-600'
+            }`}
+          >
+            <Send className="h-4 w-4" />
+            Log Vendor Submission
+          </button>
 
           <button
             onClick={handleSaveToTracker}
@@ -590,5 +826,6 @@ export default function ResumeGenerator() {
         </div>
       </div>
     </div>
+    </>
   )
 }

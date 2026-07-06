@@ -659,6 +659,123 @@ const docxService = {
     }
 
     doc.save(`${fileNameBase}.pdf`)
+  },
+
+  async generateCoverLetterPdf(resumeData, coverLetterParagraphs, fileNameBase = 'Akanksh_Resume') {
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' })
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const marginLeft = 72
+    const marginRight = 72
+    const contentWidth = pageWidth - marginLeft - marginRight
+    const bottomMargin = 72
+    let cursorY = 80
+
+    const ensureSpace = (heightNeeded = 24) => {
+      if (cursorY + heightNeeded <= pageHeight - bottomMargin) return
+      doc.addPage()
+      cursorY = 72
+    }
+
+    const drawRichParagraph = (text, options = {}) => {
+      const size = options.size || 11
+      const lineHeight = options.lineHeight || 16
+      const segments = parseFormattedText(text || '')
+      const tokens = []
+
+      segments.forEach(({ text: segmentText, bold }) => {
+        segmentText.split(/(\s+)/).forEach((part) => {
+          if (!part.length) return
+          doc.setFont(PDF_FONT, bold ? 'bold' : 'normal')
+          doc.setFontSize(size)
+          tokens.push({
+            text: part,
+            bold,
+            isSpace: /^\s+$/.test(part),
+            width: doc.getTextWidth(part)
+          })
+        })
+      })
+
+      const lines = []
+      let currentLine = []
+      let currentWidth = 0
+
+      tokens.forEach((token) => {
+        if (token.isSpace) {
+          if (currentLine.length > 0) {
+            currentLine.push(token)
+            currentWidth += token.width
+          }
+          return
+        }
+
+        if (currentWidth + token.width > contentWidth && currentLine.length > 0) {
+          while (currentLine.length && currentLine[currentLine.length - 1].isSpace) currentLine.pop()
+          lines.push(currentLine)
+          currentLine = [token]
+          currentWidth = token.width
+          return
+        }
+
+        currentLine.push(token)
+        currentWidth += token.width
+      })
+
+      while (currentLine.length && currentLine[currentLine.length - 1].isSpace) currentLine.pop()
+      if (currentLine.length) lines.push(currentLine)
+
+      ensureSpace(lines.length * lineHeight + (options.after || 0))
+      lines.forEach((line, lineIndex) => {
+        let x = marginLeft
+        line.forEach((token) => {
+          doc.setFont(PDF_FONT, token.bold ? 'bold' : 'normal')
+          doc.setFontSize(size)
+          doc.text(token.text, x, cursorY + lineIndex * lineHeight)
+          x += token.width
+        })
+      })
+      cursorY += lines.length * lineHeight + (options.after || 0)
+    }
+
+    const personalInfo = resumeData.personalInfo || {}
+    const contactParts = []
+    if (personalInfo.phone) contactParts.push(personalInfo.phone)
+    if (personalInfo.email) contactParts.push(personalInfo.email)
+    if (resumeData.contactLocation) contactParts.push(resumeData.contactLocation)
+
+    doc.setFont(PDF_FONT, 'bold')
+    doc.setFontSize(16)
+    doc.text(personalInfo.name || 'Akanksh B', marginLeft, cursorY)
+    cursorY += 22
+
+    doc.setFont(PDF_FONT, 'normal')
+    doc.setFontSize(10)
+    doc.text(contactParts.join(' | '), marginLeft, cursorY, { maxWidth: contentWidth })
+    cursorY += 36
+
+    doc.setFontSize(11)
+    doc.text(new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), marginLeft, cursorY)
+    cursorY += 28
+
+    doc.text('Dear Hiring Manager,', marginLeft, cursorY)
+    cursorY += 22
+
+    const paragraphs = Array.isArray(coverLetterParagraphs) ? coverLetterParagraphs : [coverLetterParagraphs]
+    paragraphs.filter(Boolean).forEach((paragraph) => {
+      drawRichParagraph(paragraph, { after: 14 })
+    })
+
+    cursorY += 8
+    ensureSpace(64)
+    doc.setFont(PDF_FONT, 'normal')
+    doc.setFontSize(11)
+    doc.text('Sincerely,', marginLeft, cursorY)
+    cursorY += 36
+    doc.setFont(PDF_FONT, 'bold')
+    doc.text(personalInfo.name || 'Akanksh B', marginLeft, cursorY)
+
+    doc.save(`${fileNameBase}_CoverLetter.pdf`)
   }
 }
 
