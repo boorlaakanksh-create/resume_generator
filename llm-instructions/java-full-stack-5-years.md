@@ -67,14 +67,14 @@ Only insert a JD skill into a client section when it is believable for that clie
 ## Tailoring Rules
 
 1. `jobTitle` must be a Java Full Stack / Full Stack / React + Java / Java Developer title from the JD.
-2. Extract every required and preferred JD keyword.
+2. Ensure absolutely nothing is missed from the JD requirements. You must include every single required and preferred JD skill, tool, and domain phrase across the resume, unless including multiple specific tools in the same project is not possible in real-world scenarios or contradicts the project timeline.
 3. Build recruiter-friendly keyword density from the JD: repeat the highest-value JD terms naturally across summary, skills, and client bullets, especially exact technology names, frontend frameworks, backend frameworks, API terms, database tools, cloud services, testing tools, security terms, data-processing terms, and domain phrases.
-4. Put every JD tool naturally in the skills section when it exists in this profile.
-5. Before inserting any JD skill into a client achievement, verify it exists in the Client Timeline Skill Guardrails for that client and is reasonable for that date range.
+4. Put every JD tool naturally in the skills section.
+5. Before inserting any JD skill into a client achievement, you MUST check for the existence of that skill in the project timeline for that specific client (refer to Client Timeline Skill Guardrails). Do not add future tools to older projects.
 6. If a JD keyword does not align with this profile or any client timeline, do not invent experience. Mention only adjacent truthful skills from the profile.
 7. Place the most important JD tools into work bullets without keyword stuffing.
-8. `professionalSummary` must be a JSON array of 12-15 strings, exactly like each client's `achievements` array. Each string is one responsibility-style summary bullet and will render on its own bullet line using the same bullet format as client responsibilities. Each summary item must be 2-3 resume lines long, target 28-45 words, and include at least one bolded JD keyword, tool, domain phrase, or truthful impact phrase.
-9. Each client in `workExperience` must contain 12-15 responsibility/achievement bullets. Every bullet must be 2-3 resume lines long, target 28-45 words, and include JD-relevant keywords only where they align with that client's timeline.
+8. `professionalSummary` must be a JSON array of 5-6 strings, exactly like each client's `achievements` array. Each string is one responsibility-style summary bullet and will render on its own bullet line using the same bullet format as client responsibilities. Each summary item must be 2-3 resume lines long, target 28-45 words, and include at least one bolded JD keyword, tool, domain phrase, or truthful impact phrase.
+9. Each client in `workExperience` must contain 8-10 responsibility/achievement bullets. Every bullet must be 2-3 resume lines long, target 28-45 words, and include JD-relevant keywords only where they align with that client's timeline.
 10. Use the most JD-relevant bullets near the top of each client section.
 11. Preserve all real companies, titles, dates, and locations exactly.
 12. Do not invent metrics. Use quantified impact only when strongly grounded.
@@ -97,7 +97,7 @@ Return only valid JSON. No preamble and no markdown fence.
   "contactLocation": "Frisco, TX",
   "jobTitle": "Exact Job Title from JD",
   "professionalSummary": [
-    "12-15 summary bullets as array items, formatted like client responsibilities, with no semicolons anywhere in the summary text. Each summary bullet should be 2-3 resume lines long at Calibri 11 pt with natural JD keyword density and truthful profile alignment."
+    "5-6 summary bullets as array items, formatted like client responsibilities, with no semicolons anywhere in the summary text. Each summary bullet should be 2-3 resume lines long at Calibri 11 pt with natural JD keyword density and truthful profile alignment."
   ],
   "skills": {
     "Category Name": ["skill1", "skill2"]
@@ -108,7 +108,7 @@ Return only valid JSON. No preamble and no markdown fence.
       "position": "Position from this profile",
       "location": "Location from this profile",
       "dates": "Dates from this profile",
-      "achievements": ["12-15 client responsibility/achievement bullets; each bullet should be 2-3 resume lines long at Calibri 11 pt and valid for this client's timeline"]
+      "achievements": ["8-10 client responsibility/achievement bullets; each bullet should be 2-3 resume lines long at Calibri 11 pt and valid for this client's timeline"]
     }
   ]
 }

@@ -128,7 +128,7 @@ Common ERP platforms:
 ## Professional Skills Rules
 
 - Write a Professional Skills section.
-- Bold section headings only.
+- The application will automatically bold section headings. Do not use markdown stars (`**`) in the section headings or category names.
 - Do not bold individual skills.
 - Use comma-separated skills.
 - Match JD terminology exactly.

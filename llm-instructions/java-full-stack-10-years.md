@@ -68,10 +68,10 @@ Only insert a JD skill into a client section when it is believable for that clie
 ## Tailoring Rules
 
 1. `jobTitle` must be a senior Java / backend-heavy full stack title from the JD.
-2. Extract every required and preferred JD keyword.
+2. Ensure absolutely nothing is missed from the JD requirements. You must include every single required and preferred JD skill, tool, and domain phrase across the resume, unless including multiple specific tools in the same project is not possible in real-world scenarios or contradicts the project timeline.
 3. Build recruiter-friendly keyword density from the JD: repeat the highest-value JD terms naturally across summary, skills, and client bullets, especially exact technology names, architecture terms, cloud services, testing tools, security terms, and domain phrases.
-4. Put every JD tool naturally in the skills section when it exists in this profile.
-5. Before inserting any JD skill into a client achievement, verify it exists in the Client Timeline Skill Guardrails for that client and is reasonable for that date range.
+4. Put every JD tool naturally in the skills section.
+5. Before inserting any JD skill into a client achievement, you MUST check for the existence of that skill in the project timeline for that specific client (refer to Client Timeline Skill Guardrails). Do not add future tools to older projects.
 6. If a JD keyword does not align with this profile or any client timeline, do not invent experience. Mention only adjacent truthful skills from the profile.
 7. Place the most important JD tools into work bullets without keyword stuffing.
 8. `professionalSummary` must be a JSON array of 12-15 strings, exactly like each client's `achievements` array. Each string is one responsibility-style summary bullet and will render on its own bullet line using the same bullet format as client responsibilities. Each summary item must be 2-3 resume lines long, target 28-45 words, and include at least one bolded JD keyword, tool, metric, architecture pattern, or domain phrase.
