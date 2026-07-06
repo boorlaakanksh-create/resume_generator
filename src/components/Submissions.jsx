@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ClipboardCopy, Download, Eye, Search, Trash2, X } from 'lucide-react'
 import { DEFAULT_PROFILE_ID, RESUME_PROFILES, getProfileById } from '../data/profiles'
+import { deleteLocalSubmission, getLocalSubmissions, updateLocalSubmission } from '../services/localSubmissions'
 
 const STATUS_OPTIONS = [
   'Waiting for Response',
@@ -74,6 +75,14 @@ async function loadDocxService() {
   return module.default
 }
 
+function mergeSubmissions(remoteItems, localItems) {
+  const remoteIds = new Set(remoteItems.map((item) => item.id))
+  return [
+    ...localItems,
+    ...remoteItems.filter((item) => !remoteIds.has(item.id) || !item.localOnly)
+  ]
+}
+
 export default function Submissions() {
   const [submissions, setSubmissions] = useState([])
   const [loading, setLoading] = useState(true)
@@ -88,13 +97,14 @@ export default function Submissions() {
 
   const fetchSubmissions = useCallback(async () => {
     setLoading(true)
+    const localItems = getLocalSubmissions()
     try {
       const res = await fetch('/api/submissions?limit=500')
       if (!res.ok) throw new Error('Fetch failed')
       const data = await res.json()
-      setSubmissions(data.items || [])
+      setSubmissions(mergeSubmissions(data.items || [], localItems))
     } catch {
-      setSubmissions([])
+      setSubmissions(localItems)
     } finally {
       setLoading(false)
     }
@@ -152,6 +162,13 @@ export default function Submissions() {
   const handleStatusChange = async (id, newStatus, previousStatus) => {
     setUpdatingId(id)
     setSubmissions((prev) => prev.map((item) => item.id === id ? { ...item, status: newStatus } : item))
+
+    if (id.startsWith('local-')) {
+      updateLocalSubmission(id, { status: newStatus })
+      setUpdatingId(null)
+      return
+    }
+
     try {
       const res = await fetch(`/api/submissions?id=${id}`, {
         method: 'PATCH',
@@ -168,6 +185,14 @@ export default function Submissions() {
 
   const handleDelete = async (id) => {
     setDeletingId(id)
+
+    if (id.startsWith('local-')) {
+      deleteLocalSubmission(id)
+      setSubmissions((prev) => prev.filter((submission) => submission.id !== id))
+      setDeletingId(null)
+      return
+    }
+
     try {
       const res = await fetch(`/api/submissions?id=${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Delete failed')
@@ -181,6 +206,17 @@ export default function Submissions() {
 
   const handleViewJd = async (submission) => {
     setViewingJdId(submission.id)
+
+    if (submission.localOnly) {
+      setJdModal({
+        open: true,
+        title: `${submission.clientName || submission.vendorCompany || 'Submission'} - JD & Signature`,
+        content: submission.jobDescription || 'No job description saved.'
+      })
+      setViewingJdId(null)
+      return
+    }
+
     try {
       const res = await fetch(`/api/submissions?id=${submission.id}&fields=jd`)
       if (!res.ok) throw new Error('Fetch failed')
@@ -200,9 +236,14 @@ export default function Submissions() {
   const handleDownloadPdf = async (submission) => {
     setDownloadingId(submission.id)
     try {
-      const res = await fetch(`/api/submissions?id=${submission.id}&fields=resume`)
-      if (!res.ok) throw new Error('Fetch failed')
-      const full = await res.json()
+      let full = submission
+
+      if (!submission.localOnly) {
+        const res = await fetch(`/api/submissions?id=${submission.id}&fields=resume`)
+        if (!res.ok) throw new Error('Fetch failed')
+        full = await res.json()
+      }
+
       const parsed = full.resumeJson
       if (!parsed) throw new Error('No resume stored')
       const profile = getProfileById(full.profileId || DEFAULT_PROFILE_ID)

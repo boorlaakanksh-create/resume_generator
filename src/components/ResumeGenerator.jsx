@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, Download, FileText, RotateCcw, Save, Send, X } from 'lucide-react'
 import { DEFAULT_PROFILE_ID, getProfileById, RESUME_PROFILES } from '../data/profiles'
+import { saveLocalSubmission } from '../services/localSubmissions'
 
 function camelToSpaces(str) {
   return String(str || '').replace(/([A-Z])/g, ' $1').trim()
@@ -113,7 +114,7 @@ export default function ResumeGenerator() {
   const [downloadError, setDownloadError] = useState('')
   const [showVendorModal, setShowVendorModal] = useState(false)
   const [vendorSubmitting, setVendorSubmitting] = useState(false)
-  const [vendorSuccess, setVendorSuccess] = useState(false)
+  const [vendorSuccess, setVendorSuccess] = useState('')
   const [vendorError, setVendorError] = useState('')
   const [vendorForm, setVendorForm] = useState({
     submissionDate: new Date().toISOString().split('T')[0],
@@ -349,25 +350,29 @@ export default function ResumeGenerator() {
   const handleVendorSubmit = async (event) => {
     event.preventDefault()
     setVendorSubmitting(true)
-    setVendorSuccess(false)
+    setVendorSuccess('')
     setVendorError('')
+    const payload = {
+      ...vendorForm,
+      fileName: effectiveParsedData?.resumeMeta?.fileName || '',
+      profileId: selectedProfile.id,
+      resumeJson: hasParsedData ? buildStoredResumeJson() : null,
+      jobDescription: jobDescription || ''
+    }
 
     try {
       const res = await fetch('/api/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...vendorForm,
-          fileName: effectiveParsedData?.resumeMeta?.fileName || '',
-          profileId: selectedProfile.id,
-          resumeJson: hasParsedData ? buildStoredResumeJson() : null,
-          jobDescription: jobDescription || ''
-        })
+        body: JSON.stringify(payload)
       })
 
-      if (!res.ok) throw new Error('API error')
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || 'API error')
+      }
 
-      setVendorSuccess(true)
+      setVendorSuccess('Submission logged successfully.')
       window.dispatchEvent(new CustomEvent('submission-logged'))
       setVendorForm({
         submissionDate: new Date().toISOString().split('T')[0],
@@ -380,7 +385,19 @@ export default function ResumeGenerator() {
         phone: ''
       })
     } catch {
-      setVendorError('Failed to log submission. Please try again.')
+      saveLocalSubmission(payload)
+      setVendorSuccess('Submission saved locally because the server dashboard is unavailable.')
+      window.dispatchEvent(new CustomEvent('submission-logged'))
+      setVendorForm({
+        submissionDate: new Date().toISOString().split('T')[0],
+        vendorCompany: '',
+        rtrAmount: '',
+        pocName: '',
+        pocEmail: '',
+        clientName: '',
+        status: 'Waiting for Response',
+        phone: ''
+      })
     } finally {
       setVendorSubmitting(false)
     }
@@ -395,7 +412,7 @@ export default function ResumeGenerator() {
     setSaveStatus(null)
     setSaveError('')
     setDownloadError('')
-    setVendorSuccess(false)
+    setVendorSuccess('')
     setVendorError('')
   }
 
@@ -419,7 +436,7 @@ export default function ResumeGenerator() {
             <button
               onClick={() => {
                 setShowVendorModal(false)
-                setVendorSuccess(false)
+                setVendorSuccess('')
                 setVendorError('')
               }}
               className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-800 hover:text-white"
@@ -481,7 +498,7 @@ export default function ResumeGenerator() {
                 {vendorStatusOptions.map((status) => <option key={status} value={status}>{status}</option>)}
               </select>
             </div>
-            {vendorSuccess && <p className="text-sm text-emerald-400">Submission logged successfully!</p>}
+            {vendorSuccess && <p className="text-sm text-emerald-400">{vendorSuccess}</p>}
             {vendorError && <p className="text-sm text-red-400">{vendorError}</p>}
             <button
               type="submit"
@@ -775,7 +792,7 @@ export default function ResumeGenerator() {
           <button
             onClick={() => {
               setShowVendorModal(true)
-              setVendorSuccess(false)
+              setVendorSuccess('')
             }}
             disabled={!hasParsedData || !hasJobDescription}
             className={`flex w-full items-center justify-center gap-2 rounded-2xl border py-3 text-sm font-medium transition ${
