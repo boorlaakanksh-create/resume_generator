@@ -85,18 +85,62 @@ function normalizeAcademicProjects(value) {
   }).filter((project) => project.name || project.achievements.length > 0)
 }
 
-function findAcademicProjectSource(parsed) {
+function dedupeAcademicProjects(projects) {
+  const seen = new Set()
+  return projects.filter((project) => {
+    const key = [
+      valueToText(project.name || project.title || project.projectName || project.project),
+      valueToText(project.context || project.description || project.type || project.institution),
+      valueToText(project.dates || project.period || project.year || project.timeline)
+    ].join('|').toLowerCase()
+
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+function collectAcademicProjectCandidates(value, parentKey = '', results = [], seen = new WeakSet()) {
+  if (!value || typeof value !== 'object') return results
+  if (seen.has(value)) return results
+  seen.add(value)
+
+  const keySignal = /academic|project/i.test(parentKey)
+  const text = valueToText(value).toLowerCase()
+  const textSignal = text.includes('online banking system') || text.includes('academic project')
+  const objectSignal = value.name || value.title || value.projectName || value.project || value.achievements || value.bullets || value.responsibilities || value.details
+
+  if ((keySignal || textSignal) && objectSignal && !/atsreview/i.test(parentKey)) {
+    results.push(value)
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectAcademicProjectCandidates(item, parentKey, results, seen))
+    return results
+  }
+
+  Object.entries(value).forEach(([key, item]) => {
+    if (/workExperience|professionalExperience|experience/i.test(key)) return
+    collectAcademicProjectCandidates(item, key, results, seen)
+  })
+
+  return results
+}
+
+function findAcademicProjects(parsed) {
   const directSource = parsed.academicProjects || parsed.academicProject || parsed.academic_projects || parsed.projects
-  if (directSource) return directSource
+  const directProjects = normalizeAcademicProjects(directSource)
 
   if (Array.isArray(parsed.education)) {
     const nestedProjects = parsed.education.flatMap((entry) => (
       entry?.academicProjects || entry?.academicProject || entry?.projects || []
     ))
-    if (nestedProjects.length > 0) return nestedProjects
+    directProjects.push(...normalizeAcademicProjects(nestedProjects))
   }
 
-  return null
+  directProjects.push(...normalizeAcademicProjects(collectAcademicProjectCandidates(parsed)))
+
+  return dedupeAcademicProjects(directProjects)
 }
 
 function normalizeSummaryBullets(value) {
@@ -117,7 +161,6 @@ function normalizeSummaryBullets(value) {
 
 function normalizeParsedResume(parsed) {
   const summaryFormat = parsed.summaryFormat === 'paragraph' ? 'paragraph' : 'bullets'
-  const projectSource = findAcademicProjectSource(parsed)
 
   return {
     ...parsed,
@@ -148,7 +191,7 @@ function normalizeParsedResume(parsed) {
         achievements: normalizeTextList(experience.achievements || experience.bullets || experience.responsibilities)
       }
     }),
-    academicProjects: normalizeAcademicProjects(projectSource)
+    academicProjects: findAcademicProjects(parsed)
   }
 }
 
