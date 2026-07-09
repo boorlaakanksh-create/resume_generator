@@ -145,6 +145,18 @@ function buildCertificationText(certification) {
   return parts.join(' | ')
 }
 
+function getProjectTitle(project) {
+  return valueToText(project.name || project.title || project.projectName)
+}
+
+function getProjectContext(project) {
+  return valueToText(project.context || project.description || project.type)
+}
+
+function getProjectDates(project) {
+  return valueToText(project.dates || project.period || project.year)
+}
+
 function buildPlainText(text) {
   return parseFormattedText(text)
     .map((run) => run.text)
@@ -343,6 +355,61 @@ const docxService = {
         )
 
         const achievements = experience.achievements || experience.bullets || experience.responsibilities || []
+        achievements.forEach((achievement, index) => {
+          sections.push(createBulletParagraph(achievement, index === achievements.length - 1))
+        })
+      })
+    }
+
+    if (resumeData.academicProjects?.length > 0) {
+      sections.push(createSectionHeader('ACADEMIC PROJECTS'))
+
+      resumeData.academicProjects.forEach((project) => {
+        const title = getProjectTitle(project)
+        const context = getProjectContext(project)
+        const dates = getProjectDates(project)
+
+        sections.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: title,
+                font: FONT,
+                size: BODY_SIZE,
+                bold: true,
+                color: '000000'
+              }),
+              new TextRun({
+                text: title && context ? ', ' : '',
+                font: FONT,
+                size: BODY_SIZE,
+                color: '000000'
+              }),
+              new TextRun({
+                text: context,
+                font: FONT,
+                size: BODY_SIZE,
+                italics: true,
+                color: '000000'
+              }),
+              ...(dates
+                ? [
+                    new TextRun({ text: '\t', font: FONT, size: BODY_SIZE }),
+                    new TextRun({
+                      text: dates,
+                      font: FONT,
+                      size: SMALL_SIZE,
+                      color: '000000'
+                    })
+                  ]
+                : [])
+            ],
+            tabStops: [{ type: TabStopType.RIGHT, position: RIGHT_TAB }],
+            spacing: { before: 80, after: 40 }
+          })
+        )
+
+        const achievements = project.achievements || project.bullets || project.responsibilities || []
         achievements.forEach((achievement, index) => {
           sections.push(createBulletParagraph(achievement, index === achievements.length - 1))
         })
@@ -639,6 +706,17 @@ const docxService = {
         const rightText = [experience.dates || experience.period || '', experience.location || ''].filter(Boolean).join(' | ')
         drawEntryHeader(leftText, rightText)
         drawBullets(experience.achievements || experience.bullets || experience.responsibilities || [])
+      })
+    }
+
+    if (resumeData.academicProjects?.length > 0) {
+      drawSectionHeader('ACADEMIC PROJECTS')
+      resumeData.academicProjects.forEach((project) => {
+        const title = getProjectTitle(project)
+        const context = getProjectContext(project)
+        const leftText = `${title}${title && context ? ', ' : ''}${context}`
+        drawEntryHeader(leftText, getProjectDates(project))
+        drawBullets(project.achievements || project.bullets || project.responsibilities || [])
       })
     }
 

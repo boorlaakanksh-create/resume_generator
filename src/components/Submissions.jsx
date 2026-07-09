@@ -255,6 +255,7 @@ export default function Submissions() {
         summaryFormat: parsed.summaryFormat || (profile.id === 'edi' ? 'paragraph' : 'bullets'),
         skills: parsed.skills,
         experience: parsed.workExperience,
+        academicProjects: parsed.academicProjects || [],
         education: profile.education,
         certifications: profile.certifications
       }

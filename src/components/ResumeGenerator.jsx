@@ -60,6 +60,20 @@ function normalizeSummaryBullets(value) {
 
 function normalizeParsedResume(parsed) {
   const summaryFormat = parsed.summaryFormat === 'paragraph' ? 'paragraph' : 'bullets'
+  const normalizeAcademicProjects = (value) => {
+    if (!Array.isArray(value)) return []
+
+    return value.map((item) => {
+      const project = item && typeof item === 'object' ? item : { name: item }
+      return {
+        ...project,
+        name: valueToText(project.name || project.title || project.projectName),
+        context: valueToText(project.context || project.description || project.type),
+        dates: valueToText(project.dates || project.period || project.year),
+        achievements: normalizeTextList(project.achievements || project.bullets || project.responsibilities)
+      }
+    }).filter((project) => project.name || project.achievements.length > 0)
+  }
 
   return {
     ...parsed,
@@ -89,7 +103,8 @@ function normalizeParsedResume(parsed) {
         dates: valueToText(experience.dates || experience.period),
         achievements: normalizeTextList(experience.achievements || experience.bullets || experience.responsibilities)
       }
-    })
+    }),
+    academicProjects: normalizeAcademicProjects(parsed.academicProjects || parsed.academicProject || [])
   }
 }
 
@@ -155,6 +170,7 @@ export default function ResumeGenerator() {
     summaryFormat: effectiveParsedData.summaryFormat,
     skills: effectiveParsedData.skills,
     workExperience: effectiveParsedData.workExperience,
+    academicProjects: effectiveParsedData.academicProjects || [],
     coverLetter: effectiveParsedData.coverLetter
   })
 
@@ -166,6 +182,7 @@ export default function ResumeGenerator() {
     summaryFormat: effectiveParsedData.summaryFormat || (selectedProfile.id === 'edi' ? 'paragraph' : 'bullets'),
     skills: effectiveParsedData.skills,
     experience: effectiveParsedData.workExperience,
+    academicProjects: effectiveParsedData.academicProjects || [],
     education: selectedProfile.education,
     certifications: selectedProfile.certifications
   })
@@ -693,6 +710,21 @@ export default function ResumeGenerator() {
                   <p className="text-slate-500">Recent roles and dates will appear here after parsing.</p>
                 )}
               </div>
+
+              {hasParsedData && effectiveParsedData.academicProjects?.length > 0 && (
+                <div>
+                  <p className="mb-1 text-xs font-bold uppercase text-slate-500">
+                    Academic Projects ({effectiveParsedData.academicProjects.length})
+                  </p>
+                  {effectiveParsedData.academicProjects.map((project, index) => (
+                    <p key={index} className="text-slate-300">
+                      <span className="font-medium text-slate-200">{project.name}</span>
+                      {project.context && <span className="text-slate-500"> - {project.context}</span>}
+                      <span className="ml-2 text-xs text-slate-600">{project.dates}</span>
+                    </p>
+                  ))}
+                </div>
+              )}
 
               <div>
                 <p className="mb-1 text-xs font-bold uppercase text-slate-500">

@@ -144,6 +144,7 @@ export default function Tracker() {
         summaryFormat: parsed.summaryFormat || (selectedProfile.id === 'edi' ? 'paragraph' : 'bullets'),
         skills: parsed.skills,
         experience: parsed.workExperience,
+        academicProjects: parsed.academicProjects || [],
         education: selectedProfile.education,
         certifications: selectedProfile.certifications
       }
@@ -178,6 +179,7 @@ export default function Tracker() {
         summaryFormat: parsed.summaryFormat || (selectedProfile.id === 'edi' ? 'paragraph' : 'bullets'),
         skills: parsed.skills,
         experience: parsed.workExperience,
+        academicProjects: parsed.academicProjects || [],
         education: selectedProfile.education,
         certifications: selectedProfile.certifications
       }
