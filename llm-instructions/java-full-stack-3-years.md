@@ -37,20 +37,20 @@ Java Full Stack Developer with 3+ years of experience building enterprise web ap
 
 - **Online Banking System** — Academic Project, University of North Texas | 2023 - 2024
 
-Use the academic project only as an early-career / graduate-level project when it helps support a JD requirement that is not fully covered by the professional client projects. Keep it clearly separate from professional client experience and do not represent it as paid employment.
+Use the academic project only as an early-career / graduate-level project when it helps support a JD requirement that is not fully covered by the professional client projects. Keep it clearly separate from professional client experience and do not represent it as paid employment. Keep all academic project bullets beginner-friendly, modest, and realistic for a master's-level student project.
 
 Supported academic project context:
 
-- Cloud-native banking platform using Java, Spring Boot, Microservices, ReactJS, MySQL, and MongoDB.
-- RESTful APIs for account management, balance inquiries, fund transfers, transaction history, and loan processing.
-- Apache Spark-based data processing jobs for transaction-pattern analysis and operational insights.
-- Distributed backend services for concurrent banking transactions using multithreading and concurrency management.
-- Event-driven communication using Apache Kafka.
-- Database schema design, indexing strategies, and query tuning for transaction workloads.
-- Redis caching for frequently accessed customer information.
-- Spring Security, OAuth2, and JWT for authentication and authorization.
-- Docker and Kubernetes / Minikube for containerized deployment.
-- Jenkins CI/CD, JUnit, Mockito, data validation, error handling, monitoring, and logging.
+- Course / capstone-style banking application prototype using Java, Spring Boot, ReactJS, MySQL, and MongoDB.
+- Basic REST APIs for account lookup, balance inquiry, simple fund transfer, transaction history, and loan request workflows.
+- Introductory Apache Spark jobs for analyzing sample transaction data and generating basic insights.
+- Basic concurrent request handling and transaction validation practice using Java multithreading concepts.
+- Kafka used only for simple event-message flow in a simulated banking workflow, not large-scale production streaming.
+- Database schema design, indexing, and query tuning at a student-project level for sample transaction records.
+- Redis caching for frequently requested sample customer/account data.
+- Spring Security, OAuth2, and JWT for login and role-based access practice.
+- Docker and Kubernetes / Minikube used for local containerization and deployment practice only.
+- Jenkins CI/CD, JUnit, Mockito, validation, error handling, and basic logging used at classroom / beginner project level.
 
 ## Education Source
 
@@ -66,7 +66,7 @@ Supported academic project context:
 5. Preserve all real companies, titles, dates, and locations exactly.
 6. Use only resume-backed client names, role titles, timelines, locations, education, and project context from this profile. If the JD asks for a skill or tool outside the listed Skills Source, include it only where it is a safe, realistic extension of the role, client timeline, project context, and adjacent technology stack.
 7. Do not force incompatible technologies together in one project. Before placing skills in the same client bullet, skills section grouping, or environment-style list, verify they realistically work together for that project context and do not create a contradictory stack.
-8. Include the Online Banking System academic project when the JD requires skills such as Spark, Kafka, Redis, OAuth2, JWT, Docker, Kubernetes, CI/CD, data validation, transaction processing, banking workflows, or distributed systems and those skills need additional support beyond the client experience. Keep the project at graduate / 3-year profile level and do not overstate senior ownership.
+8. Include the Online Banking System academic project when the JD requires skills such as Spark, Kafka, Redis, OAuth2, JWT, Docker, Kubernetes, CI/CD, data validation, transaction processing, banking workflows, or distributed systems and those skills need additional support beyond the client experience. Keep the project at beginner / graduate / 3-year profile level and do not overstate senior ownership, production ownership, architecture ownership, scale, or business impact.
 9. Any skill added to professional experience or the academic project must be time-valid for when that work occurred and must have existed in a mature enough form for realistic use during that timeline. Do not add tools from the future or tools that would be unrealistic for the stated dates.
 10. `resumeMeta.fileName` must be unique and matched to the target role, but must not include vendor names, client names, employer names, staffing company names, or the applying company name. Use role-focused naming such as `Akanksh_JavaFullStackDeveloper`, `Akanksh_SoftwareEngineerJavaReact`, or `Akanksh_BackendJavaDeveloper`.
 11. Do not invent metrics. Use quantified impact only when it is strongly grounded in the resume content.
@@ -77,6 +77,7 @@ Supported academic project context:
 16. The final `atsReview.estimatedMatchScore` must be 90% or higher. Do not inflate the score by adding unsupported, incompatible, or time-invalid skills.
 17. If the Online Banking System academic project is included, it must appear in `academicProjects` with at least 2 strong, JD-aligned bullets. Do not bury the academic project inside `workExperience`.
 18. `academicProjects` must always be a JSON array. Never output it as an object keyed by project name, never use `academicProject`, `academic_projects`, or `projects`, and never place the academic project under `education`.
+19. Academic project bullets must use beginner-level verbs such as Built, Developed, Implemented, Practiced, Configured, Tested, or Integrated. Do not use senior/heavy phrases such as enterprise-grade, production-scale, high-throughput, mission-critical, led architecture, owned platform, large-scale distributed system, or millions of records/users.
 
 ## ATS Review Requirements
 
