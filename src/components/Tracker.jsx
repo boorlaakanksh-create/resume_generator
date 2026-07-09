@@ -35,6 +35,11 @@ function countSince(applications, days) {
   return applications.filter((application) => new Date(application.date).getTime() >= threshold).length
 }
 
+function normalizeAcademicProjects(parsed) {
+  const source = parsed?.academicProjects || parsed?.academicProject || parsed?.academic_projects || parsed?.projects
+  return Array.isArray(source) ? source : source ? [source] : []
+}
+
 function includesValue(value, term) {
   return value?.toLowerCase().includes(term)
 }
@@ -144,7 +149,7 @@ export default function Tracker() {
         summaryFormat: parsed.summaryFormat || (selectedProfile.id === 'edi' ? 'paragraph' : 'bullets'),
         skills: parsed.skills,
         experience: parsed.workExperience,
-        academicProjects: parsed.academicProjects || [],
+        academicProjects: normalizeAcademicProjects(parsed),
         education: selectedProfile.education,
         certifications: selectedProfile.certifications
       }
@@ -179,7 +184,7 @@ export default function Tracker() {
         summaryFormat: parsed.summaryFormat || (selectedProfile.id === 'edi' ? 'paragraph' : 'bullets'),
         skills: parsed.skills,
         experience: parsed.workExperience,
-        academicProjects: parsed.academicProjects || [],
+        academicProjects: normalizeAcademicProjects(parsed),
         education: selectedProfile.education,
         certifications: selectedProfile.certifications
       }

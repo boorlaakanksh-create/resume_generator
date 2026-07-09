@@ -70,6 +70,11 @@ function countInRange(submissions, start, end) {
   }).length
 }
 
+function normalizeAcademicProjects(parsed) {
+  const source = parsed?.academicProjects || parsed?.academicProject || parsed?.academic_projects || parsed?.projects
+  return Array.isArray(source) ? source : source ? [source] : []
+}
+
 async function loadDocxService() {
   const module = await import('../services/docxService')
   return module.default
@@ -255,7 +260,7 @@ export default function Submissions() {
         summaryFormat: parsed.summaryFormat || (profile.id === 'edi' ? 'paragraph' : 'bullets'),
         skills: parsed.skills,
         experience: parsed.workExperience,
-        academicProjects: parsed.academicProjects || [],
+        academicProjects: normalizeAcademicProjects(parsed),
         education: profile.education,
         certifications: profile.certifications
       }

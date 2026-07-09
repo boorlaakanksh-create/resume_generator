@@ -42,6 +42,21 @@ function normalizeTextList(value) {
   return text ? [text] : []
 }
 
+function normalizeAcademicProjects(value) {
+  const items = Array.isArray(value) ? value : value ? [value] : []
+
+  return items.map((item) => {
+    const project = item && typeof item === 'object' ? item : { name: item }
+    return {
+      ...project,
+      name: valueToText(project.name || project.title || project.projectName || project.project),
+      context: valueToText(project.context || project.description || project.type || project.institution),
+      dates: valueToText(project.dates || project.period || project.year || project.timeline),
+      achievements: normalizeTextList(project.achievements || project.bullets || project.responsibilities || project.details)
+    }
+  }).filter((project) => project.name || project.achievements.length > 0)
+}
+
 function normalizeSummaryBullets(value) {
   const cleanSummaryItem = (item) => valueToText(item).replace(/;/g, ',').replace(/[,:]+$/, '').trim()
 
@@ -60,20 +75,7 @@ function normalizeSummaryBullets(value) {
 
 function normalizeParsedResume(parsed) {
   const summaryFormat = parsed.summaryFormat === 'paragraph' ? 'paragraph' : 'bullets'
-  const normalizeAcademicProjects = (value) => {
-    if (!Array.isArray(value)) return []
-
-    return value.map((item) => {
-      const project = item && typeof item === 'object' ? item : { name: item }
-      return {
-        ...project,
-        name: valueToText(project.name || project.title || project.projectName),
-        context: valueToText(project.context || project.description || project.type),
-        dates: valueToText(project.dates || project.period || project.year),
-        achievements: normalizeTextList(project.achievements || project.bullets || project.responsibilities)
-      }
-    }).filter((project) => project.name || project.achievements.length > 0)
-  }
+  const projectSource = parsed.academicProjects || parsed.academicProject || parsed.academic_projects || parsed.projects
 
   return {
     ...parsed,
@@ -104,7 +106,7 @@ function normalizeParsedResume(parsed) {
         achievements: normalizeTextList(experience.achievements || experience.bullets || experience.responsibilities)
       }
     }),
-    academicProjects: normalizeAcademicProjects(parsed.academicProjects || parsed.academicProject || [])
+    academicProjects: normalizeAcademicProjects(projectSource)
   }
 }
 

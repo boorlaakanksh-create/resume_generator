@@ -409,7 +409,7 @@ const docxService = {
           })
         )
 
-        const achievements = project.achievements || project.bullets || project.responsibilities || []
+        const achievements = normalizeList(project.achievements || project.bullets || project.responsibilities || project.details)
         achievements.forEach((achievement, index) => {
           sections.push(createBulletParagraph(achievement, index === achievements.length - 1))
         })
@@ -716,7 +716,7 @@ const docxService = {
         const context = getProjectContext(project)
         const leftText = `${title}${title && context ? ', ' : ''}${context}`
         drawEntryHeader(leftText, getProjectDates(project))
-        drawBullets(project.achievements || project.bullets || project.responsibilities || [])
+        drawBullets(normalizeList(project.achievements || project.bullets || project.responsibilities || project.details))
       })
     }
 
