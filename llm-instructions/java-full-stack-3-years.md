@@ -76,6 +76,7 @@ Supported academic project context:
 15. Before returning the final JSON, perform an ATS fit review against the JD. If the estimated ATS match score is below 90%, revise the summary, skills, work bullets, and academic project bullets where safe and realistic, then review again.
 16. The final `atsReview.estimatedMatchScore` must be 90% or higher. Do not inflate the score by adding unsupported, incompatible, or time-invalid skills.
 17. If the Online Banking System academic project is included, it must appear in `academicProjects` with at least 2 strong, JD-aligned bullets. Do not bury the academic project inside `workExperience`.
+18. `academicProjects` must always be a JSON array. Never output it as an object keyed by project name, never use `academicProject`, `academic_projects`, or `projects`, and never place the academic project under `education`.
 
 ## ATS Review Requirements
 

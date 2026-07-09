@@ -71,8 +71,33 @@ function countInRange(submissions, start, end) {
 }
 
 function normalizeAcademicProjects(parsed) {
-  const source = parsed?.academicProjects || parsed?.academicProject || parsed?.academic_projects || parsed?.projects
-  return Array.isArray(source) ? source : source ? [source] : []
+  const nestedProjects = Array.isArray(parsed?.education)
+    ? parsed.education.flatMap((entry) => entry?.academicProjects || entry?.academicProject || entry?.projects || [])
+    : []
+  const source = parsed?.academicProjects || parsed?.academicProject || parsed?.academic_projects || parsed?.projects || nestedProjects
+  const isProjectLike = (item) => item && typeof item === 'object' && (
+    item.name ||
+    item.title ||
+    item.projectName ||
+    item.project ||
+    item.context ||
+    item.description ||
+    item.dates ||
+    item.period ||
+    item.achievements ||
+    item.bullets ||
+    item.responsibilities ||
+    item.details
+  )
+
+  if (!source) return []
+  if (Array.isArray(source)) return source
+  if (typeof source === 'object' && !isProjectLike(source)) {
+    return Object.entries(source).map(([name, project]) => (
+      project && typeof project === 'object' ? { name, ...project } : { name, details: project }
+    ))
+  }
+  return [source]
 }
 
 async function loadDocxService() {

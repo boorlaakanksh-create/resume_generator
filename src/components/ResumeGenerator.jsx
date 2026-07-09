@@ -43,7 +43,35 @@ function normalizeTextList(value) {
 }
 
 function normalizeAcademicProjects(value) {
-  const items = Array.isArray(value) ? value : value ? [value] : []
+  const isProjectLike = (item) => item && typeof item === 'object' && (
+    item.name ||
+    item.title ||
+    item.projectName ||
+    item.project ||
+    item.context ||
+    item.description ||
+    item.dates ||
+    item.period ||
+    item.achievements ||
+    item.bullets ||
+    item.responsibilities ||
+    item.details
+  )
+
+  const toItems = (source) => {
+    if (!source) return []
+    if (Array.isArray(source)) return source
+    if (typeof source === 'object' && !isProjectLike(source)) {
+      return Object.entries(source).flatMap(([name, project]) => {
+        if (Array.isArray(project)) return project
+        if (project && typeof project === 'object') return [{ name, ...project }]
+        return [{ name, details: project }]
+      })
+    }
+    return [source]
+  }
+
+  const items = toItems(value)
 
   return items.map((item) => {
     const project = item && typeof item === 'object' ? item : { name: item }
@@ -55,6 +83,20 @@ function normalizeAcademicProjects(value) {
       achievements: normalizeTextList(project.achievements || project.bullets || project.responsibilities || project.details)
     }
   }).filter((project) => project.name || project.achievements.length > 0)
+}
+
+function findAcademicProjectSource(parsed) {
+  const directSource = parsed.academicProjects || parsed.academicProject || parsed.academic_projects || parsed.projects
+  if (directSource) return directSource
+
+  if (Array.isArray(parsed.education)) {
+    const nestedProjects = parsed.education.flatMap((entry) => (
+      entry?.academicProjects || entry?.academicProject || entry?.projects || []
+    ))
+    if (nestedProjects.length > 0) return nestedProjects
+  }
+
+  return null
 }
 
 function normalizeSummaryBullets(value) {
@@ -75,7 +117,7 @@ function normalizeSummaryBullets(value) {
 
 function normalizeParsedResume(parsed) {
   const summaryFormat = parsed.summaryFormat === 'paragraph' ? 'paragraph' : 'bullets'
-  const projectSource = parsed.academicProjects || parsed.academicProject || parsed.academic_projects || parsed.projects
+  const projectSource = findAcademicProjectSource(parsed)
 
   return {
     ...parsed,
