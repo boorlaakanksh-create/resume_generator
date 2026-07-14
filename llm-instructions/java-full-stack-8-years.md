@@ -60,14 +60,14 @@ Redux, Material UI, Apache Kafka, AWS EKS, AWS ECS, Lambda, API Gateway, RDS, Dy
 
 ## Resume Formatting Rules
 
-- Use Calibri 11 pt for all resume body content.
-- Use Calibri 12 pt for section headings.
+- Use the attached resume style: Calibri font, 10 pt body content, compact section headings, centered candidate name, centered contact/title lines, justified resume bullets, and right-aligned certification logos near the top.
+- Keep section heading text uppercase with a simple bottom border, matching the attached resume alignment.
 - Render the Professional Summary section as bullet points, not as one paragraph.
 - Each Professional Summary bullet must appear on its own new bullet line, using the exact same bullet formatting style, indentation, spacing, and sentence structure as client responsibilities.
 - Do not write the Professional Summary as a paragraph and do not prefix summary items with manual dash or bullet symbols in the JSON; provide summary bullets as an array and the resume generator applies the same bullet formatting used for responsibilities.
 - Do not use semicolons anywhere in Professional Summary bullets or summary JSON array items.
-- Each summary point must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per point.
-- Each client responsibility/achievement bullet must be long enough to wrap into 2-3 resume lines at Calibri 11 pt; target 28-45 words per bullet.
+- Each summary point must be long enough to wrap into 2-3 resume lines at Calibri 10 pt; target 28-45 words per point.
+- Each client responsibility/achievement bullet must be long enough to wrap into 2-3 resume lines at Calibri 10 pt; target 28-45 words per bullet.
 - Do not create one-line bullets. Do not create bullets longer than 3 resume lines.
 - Every sentence and every bullet must end with a full stop/period.
 
@@ -118,7 +118,7 @@ Return only valid JSON. No preamble and no markdown fence.
   "contactLocation": "Frisco, TX",
   "jobTitle": "Exact Job Title from JD",
   "professionalSummary": [
-    "5-6 summary bullets as array items, formatted like client responsibilities, with no semicolons anywhere in the summary text. Each summary bullet should be 2-3 resume lines long at Calibri 11 pt with natural JD keyword density and truthful profile alignment."
+    "5-6 summary bullets as array items, formatted like client responsibilities, with no semicolons anywhere in the summary text. Each summary bullet should be 2-3 resume lines long at Calibri 10 pt with natural JD keyword density and truthful profile alignment."
   ],
   "skills": {
     "Category Name": ["skill1", "skill2"]

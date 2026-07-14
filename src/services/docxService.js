@@ -3,6 +3,7 @@ import {
   BorderStyle,
   Document,
   ExternalHyperlink,
+  ImageRun,
   Packer,
   Paragraph,
   TabStopType,
@@ -11,14 +12,41 @@ import {
 } from 'docx'
 import { saveAs } from 'file-saver'
 import { jsPDF } from 'jspdf'
+import awsDeveloperLogoUrl from '../assets/certifications/aws-developer-associate.png'
+import azureDeveloperLogoUrl from '../assets/certifications/azure-developer-associate.png'
 
 const FONT = 'Calibri'
 const PDF_FONT = 'helvetica'
-const BODY_SIZE = 22
-const SMALL_SIZE = 22
-const NAME_SIZE = 32
-const HEADING_SIZE = 24
 const RIGHT_TAB = convertInchesToTwip(7.2)
+const DEFAULT_DOCX_LAYOUT = {
+  bodySize: 22,
+  smallSize: 22,
+  nameSize: 32,
+  headingSize: 24,
+  logoSize: 0
+}
+const JAVA_8_DOCX_LAYOUT = {
+  bodySize: 20,
+  smallSize: 20,
+  nameSize: 28,
+  headingSize: 20,
+  logoSize: 55
+}
+
+const CERTIFICATION_LOGOS = [
+  {
+    pattern: /aws certified developer|aws.*developer/i,
+    url: awsDeveloperLogoUrl
+  },
+  {
+    pattern: /azure developer|microsoft.*azure.*developer/i,
+    url: azureDeveloperLogoUrl
+  }
+]
+
+function getDocxLayout(resumeData) {
+  return resumeData.profileId === 'java-full-stack-8yr' ? JAVA_8_DOCX_LAYOUT : DEFAULT_DOCX_LAYOUT
+}
 
 function valueToText(value) {
   if (value == null) return ''
@@ -62,10 +90,11 @@ function parseFormattedText(text) {
 }
 
 function buildTextRuns(text, options = {}) {
+  const layout = options.layout || DEFAULT_DOCX_LAYOUT
   return parseFormattedText(text).map((run) => new TextRun({
     text: run.text,
     bold: run.bold || options.bold,
-    size: options.size || BODY_SIZE,
+    size: options.size || layout.bodySize,
     font: FONT,
     color: '000000'
   }))
@@ -94,13 +123,13 @@ function normalizeSummaryBullets(value) {
     .filter(Boolean)
 }
 
-function createSectionHeader(text) {
+function createSectionHeader(text, layout = DEFAULT_DOCX_LAYOUT) {
   return new Paragraph({
     children: [
       new TextRun({
         text,
         font: FONT,
-        size: HEADING_SIZE,
+        size: layout.headingSize,
         bold: true,
         color: '000000'
       })
@@ -119,9 +148,9 @@ function createSectionHeader(text) {
   })
 }
 
-function createBulletParagraph(text, isLastBullet = false) {
+function createBulletParagraph(text, isLastBullet = false, layout = DEFAULT_DOCX_LAYOUT) {
   return new Paragraph({
-    children: buildTextRuns(ensureFullStop(text)),
+    children: buildTextRuns(ensureFullStop(text), { layout }),
     bullet: { level: 0 },
     indent: {
       left: convertInchesToTwip(0.23),
@@ -143,6 +172,38 @@ function buildCertificationText(certification) {
   if (certification.certificationNumber) parts.push(`Certification Number: ${certification.certificationNumber}`)
   if (certification.earnedOn) parts.push(`Earned On: ${certification.earnedOn}`)
   return parts.join(' | ')
+}
+
+async function getCertificationLogoRuns(certifications = [], layout = DEFAULT_DOCX_LAYOUT) {
+  if (!layout.logoSize || certifications.length === 0) return []
+
+  const certificationText = certifications.map((certification) => valueToText(certification.name || certification)).join(' | ')
+  const matchingLogos = CERTIFICATION_LOGOS.filter((logo) => logo.pattern.test(certificationText))
+
+  return Promise.all(matchingLogos.map(async (logo) => {
+    const response = await fetch(logo.url)
+    const data = await response.arrayBuffer()
+    return new ImageRun({
+      data,
+      transformation: {
+        width: layout.logoSize,
+        height: layout.logoSize
+      }
+    })
+  }))
+}
+
+async function getCertificationLogoBytes(certifications = [], enabled = false) {
+  if (!enabled || certifications.length === 0) return []
+
+  const certificationText = certifications.map((certification) => valueToText(certification.name || certification)).join(' | ')
+  const matchingLogos = CERTIFICATION_LOGOS.filter((logo) => logo.pattern.test(certificationText))
+
+  return Promise.all(matchingLogos.map(async (logo) => {
+    const response = await fetch(logo.url)
+    const data = await response.arrayBuffer()
+    return new Uint8Array(data)
+  }))
 }
 
 function getProjectTitle(project) {
@@ -167,6 +228,20 @@ const docxService = {
   async generateResume(resumeData, fileNameBase = 'Akanksh_Resume') {
     const sections = []
     const personalInfo = resumeData.personalInfo || {}
+    const layout = getDocxLayout(resumeData)
+    const logoRuns = await getCertificationLogoRuns(resumeData.certifications, layout)
+
+    if (logoRuns.length > 0) {
+      sections.push(
+        new Paragraph({
+          children: logoRuns.flatMap((logoRun, index) => (
+            index === 0 ? [logoRun] : [new TextRun({ text: '  ', font: FONT, size: layout.smallSize }), logoRun]
+          )),
+          alignment: AlignmentType.RIGHT,
+          spacing: { after: 0 }
+        })
+      )
+    }
 
     sections.push(
       new Paragraph({
@@ -174,7 +249,7 @@ const docxService = {
           new TextRun({
             text: personalInfo.name || 'Akanksh B',
             font: FONT,
-            size: NAME_SIZE,
+            size: layout.nameSize,
             bold: true,
             color: '000000'
           })
@@ -187,12 +262,12 @@ const docxService = {
     const contactChildren = []
     const pushSeparator = () => {
       if (contactChildren.length > 0) {
-        contactChildren.push(new TextRun({ text: ' | ', font: FONT, size: SMALL_SIZE, color: '000000' }))
+        contactChildren.push(new TextRun({ text: ' | ', font: FONT, size: layout.smallSize, color: '000000' }))
       }
     }
 
     if (personalInfo.phone) {
-      contactChildren.push(new TextRun({ text: personalInfo.phone, font: FONT, size: SMALL_SIZE, color: '000000' }))
+      contactChildren.push(new TextRun({ text: personalInfo.phone, font: FONT, size: layout.smallSize, color: '000000' }))
     }
 
     if (personalInfo.email) {
@@ -202,7 +277,7 @@ const docxService = {
           new TextRun({
             text: personalInfo.email,
             font: FONT,
-            size: SMALL_SIZE,
+            size: layout.smallSize,
             style: 'Hyperlink'
           })
         ],
@@ -224,7 +299,7 @@ const docxService = {
           new TextRun({
             text: cleanDisplay,
             font: FONT,
-            size: SMALL_SIZE,
+            size: layout.smallSize,
             style: 'Hyperlink'
           })
         ],
@@ -247,7 +322,7 @@ const docxService = {
             new TextRun({
               text: resumeData.jobTitle,
               font: FONT,
-              size: BODY_SIZE,
+              size: layout.bodySize,
               bold: true,
               italics: true,
               color: '000000'
@@ -260,11 +335,11 @@ const docxService = {
     }
 
     if (resumeData.summary) {
-      sections.push(createSectionHeader('PROFESSIONAL SUMMARY'))
+      sections.push(createSectionHeader('PROFESSIONAL SUMMARY', layout))
       if (resumeData.summaryFormat === 'paragraph') {
         sections.push(
           new Paragraph({
-            children: buildTextRuns(resumeData.summary),
+            children: buildTextRuns(resumeData.summary, { layout }),
             spacing: { after: 100, line: 240 },
             alignment: AlignmentType.BOTH
           })
@@ -272,13 +347,13 @@ const docxService = {
       } else {
         const summaryItems = normalizeSummaryBullets(resumeData.summary)
         summaryItems.forEach((summaryItem, index) => {
-          sections.push(createBulletParagraph(summaryItem, index === summaryItems.length - 1))
+          sections.push(createBulletParagraph(summaryItem, index === summaryItems.length - 1, layout))
         })
       }
     }
 
     if (resumeData.skills && Object.keys(resumeData.skills).length > 0) {
-      sections.push(createSectionHeader('TECHNICAL SKILLS'))
+      sections.push(createSectionHeader('TECHNICAL SKILLS', layout))
 
       Object.entries(resumeData.skills).forEach(([category, skills]) => {
         const skillText = Array.isArray(skills) ? skills.join(', ') : skills
@@ -288,14 +363,14 @@ const docxService = {
               new TextRun({
                 text: `${category}: `,
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 bold: true,
                 color: '000000'
               }),
               new TextRun({
                 text: skillText,
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 color: '000000'
               })
             ],
@@ -307,7 +382,7 @@ const docxService = {
     }
 
     if (resumeData.experience?.length > 0) {
-      sections.push(createSectionHeader('PROFESSIONAL EXPERIENCE'))
+      sections.push(createSectionHeader('PROFESSIONAL EXPERIENCE', layout))
 
       resumeData.experience.forEach((experience) => {
         const dateLocation = [experience.dates || experience.period || '', experience.location || '']
@@ -320,30 +395,30 @@ const docxService = {
               new TextRun({
                 text: experience.position || '',
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 bold: true,
                 color: '000000'
               }),
               new TextRun({
                 text: experience.position && experience.company ? ', ' : '',
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 color: '000000'
               }),
               new TextRun({
                 text: experience.company || '',
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 italics: true,
                 color: '000000'
               }),
               ...(dateLocation
                 ? [
-                    new TextRun({ text: '\t', font: FONT, size: BODY_SIZE }),
+                    new TextRun({ text: '\t', font: FONT, size: layout.bodySize }),
                     new TextRun({
                       text: dateLocation,
                       font: FONT,
-                      size: SMALL_SIZE,
+                      size: layout.smallSize,
                       color: '000000'
                     })
                   ]
@@ -356,13 +431,13 @@ const docxService = {
 
         const achievements = experience.achievements || experience.bullets || experience.responsibilities || []
         achievements.forEach((achievement, index) => {
-          sections.push(createBulletParagraph(achievement, index === achievements.length - 1))
+          sections.push(createBulletParagraph(achievement, index === achievements.length - 1, layout))
         })
       })
     }
 
     if (resumeData.academicProjects?.length > 0) {
-      sections.push(createSectionHeader('ACADEMIC PROJECTS'))
+      sections.push(createSectionHeader('ACADEMIC PROJECTS', layout))
 
       resumeData.academicProjects.forEach((project) => {
         const title = getProjectTitle(project)
@@ -375,30 +450,30 @@ const docxService = {
               new TextRun({
                 text: title,
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 bold: true,
                 color: '000000'
               }),
               new TextRun({
                 text: title && context ? ', ' : '',
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 color: '000000'
               }),
               new TextRun({
                 text: context,
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 italics: true,
                 color: '000000'
               }),
               ...(dates
                 ? [
-                    new TextRun({ text: '\t', font: FONT, size: BODY_SIZE }),
+                    new TextRun({ text: '\t', font: FONT, size: layout.bodySize }),
                     new TextRun({
                       text: dates,
                       font: FONT,
-                      size: SMALL_SIZE,
+                      size: layout.smallSize,
                       color: '000000'
                     })
                   ]
@@ -411,13 +486,13 @@ const docxService = {
 
         const achievements = normalizeList(project.achievements || project.bullets || project.responsibilities || project.details)
         achievements.forEach((achievement, index) => {
-          sections.push(createBulletParagraph(achievement, index === achievements.length - 1))
+          sections.push(createBulletParagraph(achievement, index === achievements.length - 1, layout))
         })
       })
     }
 
     if (resumeData.education?.length > 0) {
-      sections.push(createSectionHeader('EDUCATION'))
+      sections.push(createSectionHeader('EDUCATION', layout))
 
       resumeData.education.forEach((education) => {
         const degreeText = education.field ? `${education.degree} in ${education.field}` : education.degree
@@ -432,7 +507,7 @@ const docxService = {
               new TextRun({
                 text: degreeLine,
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 bold: true,
                 color: '000000'
               })
@@ -447,16 +522,16 @@ const docxService = {
               new TextRun({
                 text: education.school || '',
                 font: FONT,
-                size: BODY_SIZE,
+                size: layout.bodySize,
                 color: '000000'
               }),
               ...(detailLine
                 ? [
-                    new TextRun({ text: '\t', font: FONT, size: BODY_SIZE }),
+                    new TextRun({ text: '\t', font: FONT, size: layout.bodySize }),
                     new TextRun({
                       text: detailLine,
                       font: FONT,
-                      size: SMALL_SIZE,
+                      size: layout.smallSize,
                       color: '000000'
                     })
                   ]
@@ -470,10 +545,10 @@ const docxService = {
     }
 
     if (resumeData.certifications?.length > 0) {
-      sections.push(createSectionHeader('CERTIFICATIONS'))
+      sections.push(createSectionHeader('CERTIFICATIONS', layout))
 
       resumeData.certifications.forEach((certification, index) => {
-        sections.push(createBulletParagraph(buildCertificationText(certification), index === resumeData.certifications.length - 1))
+        sections.push(createBulletParagraph(buildCertificationText(certification), index === resumeData.certifications.length - 1, layout))
       })
     }
 
@@ -483,7 +558,7 @@ const docxService = {
           document: {
             run: {
               font: FONT,
-              size: BODY_SIZE,
+              size: layout.bodySize,
               color: '000000'
             },
             paragraph: {
@@ -527,6 +602,8 @@ const docxService = {
     const bottomMargin = 48
     const rightColumnX = pageWidth - marginRight
     let cursorY = 44
+    const isJava8Resume = resumeData.profileId === 'java-full-stack-8yr'
+    const logoBytes = await getCertificationLogoBytes(resumeData.certifications, isJava8Resume)
 
     const buildRichLines = (text, maxWidth, size = 11) => {
       const segments = parseFormattedText(text || '')
@@ -665,19 +742,28 @@ const docxService = {
       .filter(Boolean)
       .forEach((item) => contactParts.push(item.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')))
 
+    if (logoBytes.length > 0) {
+      const logoSize = 42
+      const gap = 8
+      logoBytes.forEach((logo, index) => {
+        const x = rightColumnX - ((logoBytes.length - index) * logoSize) - ((logoBytes.length - index - 1) * gap)
+        doc.addImage(logo, 'PNG', x, 30, logoSize, logoSize)
+      })
+    }
+
     doc.setFont(PDF_FONT, 'bold')
-    doc.setFontSize(16)
+    doc.setFontSize(isJava8Resume ? 14 : 16)
     doc.text(personalInfo.name || 'Akanksh B', pageWidth / 2, cursorY, { align: 'center' })
     cursorY += 16
 
     doc.setFont(PDF_FONT, 'normal')
-    doc.setFontSize(11)
+    doc.setFontSize(isJava8Resume ? 10 : 11)
     doc.text(contactParts.join(' | '), pageWidth / 2, cursorY, { align: 'center', maxWidth: contentWidth })
     cursorY += 16
 
     if (resumeData.jobTitle) {
       doc.setFont(PDF_FONT, 'bolditalic')
-      doc.setFontSize(11)
+      doc.setFontSize(isJava8Resume ? 10 : 11)
       doc.text(resumeData.jobTitle, pageWidth / 2, cursorY, { align: 'center' })
       cursorY += 18
     }

@@ -278,6 +278,7 @@ export default function Submissions() {
       if (!parsed) throw new Error('No resume stored')
       const profile = getProfileById(full.profileId || DEFAULT_PROFILE_ID)
       const resumeData = {
+        profileId: profile.id,
         personalInfo: profile.personalInfo,
         contactLocation: parsed.contactLocation || 'Frisco, TX',
         jobTitle: parsed.jobTitle || '',

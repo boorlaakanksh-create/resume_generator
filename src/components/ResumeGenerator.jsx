@@ -262,6 +262,7 @@ export default function ResumeGenerator() {
   })
 
   const buildResumeData = () => ({
+    profileId: selectedProfile.id,
     personalInfo: selectedProfile.personalInfo,
     contactLocation: effectiveParsedData.contactLocation || 'Frisco, TX',
     jobTitle: effectiveParsedData.jobTitle || '',

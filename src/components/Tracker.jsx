@@ -167,6 +167,7 @@ export default function Tracker() {
       const selectedProfile = getProfileById(full.profileId || application.profileId || DEFAULT_PROFILE_ID)
 
       const resumeData = {
+        profileId: selectedProfile.id,
         personalInfo: selectedProfile.personalInfo,
         contactLocation: parsed.contactLocation || 'Frisco, TX',
         jobTitle: parsed.jobTitle || '',
@@ -202,6 +203,7 @@ export default function Tracker() {
       const selectedProfile = getProfileById(full.profileId || application.profileId || DEFAULT_PROFILE_ID)
 
       const resumeData = {
+        profileId: selectedProfile.id,
         personalInfo: selectedProfile.personalInfo,
         contactLocation: parsed.contactLocation || 'Frisco, TX',
         jobTitle: parsed.jobTitle || '',
