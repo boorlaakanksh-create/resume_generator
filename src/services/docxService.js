@@ -44,8 +44,15 @@ const CERTIFICATION_LOGOS = [
   }
 ]
 
+function getCertificationLogoMatches(certifications = []) {
+  const certificationText = certifications.map((certification) => valueToText(certification.name || certification)).join(' | ')
+  return CERTIFICATION_LOGOS.filter((logo) => logo.pattern.test(certificationText))
+}
+
 function getDocxLayout(resumeData) {
-  return resumeData.profileId === 'java-full-stack-8yr' ? JAVA_8_DOCX_LAYOUT : DEFAULT_DOCX_LAYOUT
+  return resumeData.profileId === 'java-full-stack-8yr' || getCertificationLogoMatches(resumeData.certifications).length > 0
+    ? JAVA_8_DOCX_LAYOUT
+    : DEFAULT_DOCX_LAYOUT
 }
 
 function valueToText(value) {
@@ -177,13 +184,13 @@ function buildCertificationText(certification) {
 async function getCertificationLogoRuns(certifications = [], layout = DEFAULT_DOCX_LAYOUT) {
   if (!layout.logoSize || certifications.length === 0) return []
 
-  const certificationText = certifications.map((certification) => valueToText(certification.name || certification)).join(' | ')
-  const matchingLogos = CERTIFICATION_LOGOS.filter((logo) => logo.pattern.test(certificationText))
+  const matchingLogos = getCertificationLogoMatches(certifications)
 
   return Promise.all(matchingLogos.map(async (logo) => {
     const response = await fetch(logo.url)
     const data = await response.arrayBuffer()
     return new ImageRun({
+      type: 'png',
       data,
       transformation: {
         width: layout.logoSize,
@@ -196,8 +203,7 @@ async function getCertificationLogoRuns(certifications = [], layout = DEFAULT_DO
 async function getCertificationLogoBytes(certifications = [], enabled = false) {
   if (!enabled || certifications.length === 0) return []
 
-  const certificationText = certifications.map((certification) => valueToText(certification.name || certification)).join(' | ')
-  const matchingLogos = CERTIFICATION_LOGOS.filter((logo) => logo.pattern.test(certificationText))
+  const matchingLogos = getCertificationLogoMatches(certifications)
 
   return Promise.all(matchingLogos.map(async (logo) => {
     const response = await fetch(logo.url)
@@ -602,7 +608,7 @@ const docxService = {
     const bottomMargin = 48
     const rightColumnX = pageWidth - marginRight
     let cursorY = 44
-    const isJava8Resume = resumeData.profileId === 'java-full-stack-8yr'
+    const isJava8Resume = resumeData.profileId === 'java-full-stack-8yr' || getCertificationLogoMatches(resumeData.certifications).length > 0
     const logoBytes = await getCertificationLogoBytes(resumeData.certifications, isJava8Resume)
 
     const buildRichLines = (text, maxWidth, size = 11) => {
