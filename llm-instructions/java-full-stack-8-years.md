@@ -28,7 +28,7 @@ Senior Java Full Stack Developer with nearly 8 years of experience designing, de
 
 ## Experience Source
 
-- **City Bank** — Senior Java Full Stack Developer, Irving, TX | May 2024 - Present
+- **Citi Bank** — Senior Java Full Stack Developer, Irving, TX | May 2024 - Present
 - **Maximus Health** — Senior Full Stack Engineer, Mclean, VA | Jan 2023 - May 2024
 - **PNC Bank** — Full Stack Engineer, Pittsburgh, PA | Dec 2020 - Jul 2022
 - **Factset** — Associate Software Developer | Jun 2018 - Dec 2020
@@ -37,7 +37,7 @@ Senior Java Full Stack Developer with nearly 8 years of experience designing, de
 
 Only insert a JD skill into a client section when it is believable for that client, role, and time period. Do not force modern tools into older roles unless the tool existed and fits that environment.
 
-- **City Bank, May 2024 - Present:** Java 17, Spring Boot, Spring MVC, Spring Security, Hibernate, JPA, Microservices, REST APIs, React, TypeScript,
+- **Citi Bank, May 2024 - Present:** Java 17, Spring Boot, Spring MVC, Spring Security, Hibernate, JPA, Microservices, REST APIs, React, TypeScript,
 Redux, Material UI, Apache Kafka, AWS EKS, AWS ECS, Lambda, API Gateway, RDS, DynamoDB, S3, SNS, SQS, CloudWatch, Microsoft Azure, Azure DevOps, Spring Boot Actuator, Docker, Kubernetes, Oracle, PostgreSQL, Jenkins, GitHub Actions, Maven, SonarQube, Splunk, ELK Stack, Dynatrace, GitHub Copilot, Jira MCP, Figma MCP, Playwright MCP, Agile Scrum.
 - **Maximus Health, Jan 2023 - May 2024:** Java 11, Spring Boot, Spring MVC, Spring Security, Hibernate, JPA, Microservices, REST APIs, React, TypeScript, Redux, Bootstrap, Apache Kafka, AWS Lambda, ECS, S3, API Gateway, RDS, CloudWatch, SNS, SQS, Docker, Kubernetes, Oracle, PostgreSQL, Jenkins, Maven, Git, SonarQube, Splunk, Spring Boot Actuator, JUnit, Mockito, Selenium, Cucumber, Postman, Agile Scrum.
 - **PNC Bank, Dec 2020 - Jul 2022:**  Java 8, Spring Boot, Spring MVC, Spring Security, Hibernate, REST APIs, Microservices, Angular, TypeScript, JavaScript, HTML5, CSS3, Bootstrap, Azure DevOps, Azure Active Directory, Apache Kafka, Oracle, SQL Server, Docker, Jenkins, Maven, Git, Splunk, JUnit, Mockito, Postman, Agile Scrum
@@ -82,7 +82,7 @@ Redux, Material UI, Apache Kafka, AWS EKS, AWS ECS, Lambda, API Gateway, RDS, Dy
 5. Before inserting any JD skill into a client achievement, you MUST check for the existence of that skill in the project timeline for that specific client (refer to Client Timeline Skill Guardrails). Do not add future tools to older projects. Ensure key requested skills like Angular, React, or Cloud (AWS, Azure, GCP) are prioritized and prominently placed in the most recent project if requested in the JD, to demonstrate current working knowledge and establish a strong fit.
 6. If a JD keyword does not align with this profile or any client timeline, do not invent experience. Mention only adjacent truthful skills from the profile. Do not keep multiple skills which are not used naturally or really together in the same project.
 7. Place the most important JD tools into work bullets without keyword stuffing.
-8. `professionalSummary` must be a JSON array of 5-6 strings, exactly like each client's `achievements` array. Each string is one responsibility-style summary bullet and will render on its own bullet line using the same bullet format as client responsibilities. Each summary item must be 2-3 resume lines long, target 28-45 words, and bold only 1-2 important JD keywords, tools, or domain phrases using `**keyword**`.
+8. `professionalSummary` must be a JSON array of 10-12 strings, exactly like each client's `achievements` array. Each string is one responsibility-style summary bullet and will render on its own bullet line using the same bullet format as client responsibilities. Each summary item must be 2-3 resume lines long, target 28-45 words, and bold only 1-2 important JD keywords, tools, or domain phrases using `**keyword**`.
 9. Each client in `workExperience` must contain 8-10 responsibility/achievement bullets. The final bullet MUST be an "Environment: " line listing the specific technologies used (e.g., "Environment: Java 17, Spring Boot, React, Azure"). This environment list MUST be dynamically updated for each JD to include the exact skills and keywords requested, but the Environment line must not contain bold markdown. Every other client responsibility bullet must be 2-3 resume lines long, target 28-45 words, include JD-relevant keywords only where they align with that client's timeline, and bold only 1-2 important JD keywords using `**keyword**`.
 10. Use the most JD-relevant bullets near the top of each client section.
 11. Preserve all real companies, titles, dates, and locations exactly.
@@ -121,7 +121,7 @@ Return only valid JSON. No preamble and no markdown fence.
   "contactLocation": "Frisco, TX",
   "jobTitle": "Exact Job Title from JD",
   "professionalSummary": [
-    "5-6 summary bullets as array items, formatted like client responsibilities, with no semicolons anywhere in the summary text. Each summary bullet should be 2-3 resume lines long at Calibri 10 pt and bold only 1-2 important JD keywords using **keyword**."
+    "10-12 summary bullets as array items, formatted like client responsibilities, with no semicolons anywhere in the summary text. Each summary bullet should be 2-3 resume lines long at Calibri 10 pt and bold only 1-2 important JD keywords using **keyword**."
   ],
   "skills": {
     "Category Name": ["skill1", "skill2"]
