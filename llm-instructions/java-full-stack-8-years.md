@@ -71,19 +71,19 @@ Redux, Material UI, Apache Kafka, AWS EKS, AWS ECS, Lambda, API Gateway, RDS, Dy
 - Do not create one-line bullets. Do not create bullets longer than 3 resume lines.
 - Every sentence and every bullet must end with a full stop/period.
 - Bold important JD keywords only in `professionalSummary` bullets and client responsibility bullets inside `workExperience[].achievements`.
-- Do not bold text in `skills`, `resumeMeta`, `jobTitle`, `contactLocation`, `certifications`, `education`, final "Environment:" bullets, ATS review fields, or any non-summary/non-client-responsibility field.
+- Do not bold text in `skills`, `resumeMeta`, `jobTitle`, `contactLocation`, `certifications`, `education`, final "**Environment:**" bullets (except the "**Environment:**" label itself), ATS review fields, or any non-summary/non-client-responsibility field.
 
 ## Tailoring Rules
 
 1. `jobTitle` must be a Senior Java Full Stack Developer / Senior Full Stack Engineer / Senior React + Java / Senior Java Developer title from the JD.
 2. Ensure absolutely nothing is missed from the JD requirements. You must include every single required and preferred JD skill, tool, and domain phrase across the resume to ensure the resume will pass recruiter ATS checks by having high keyword density, unless including multiple specific tools in the same project is not possible in real-world scenarios or contradicts the project timeline.
 3. Build recruiter-friendly keyword density from the JD: repeat the highest-value JD terms naturally across summary, skills, and client bullets, especially exact technology names, frontend frameworks, backend frameworks, API terms, database tools, cloud services, testing tools, security terms, data-processing terms, and domain phrases.
-4. Dynamically generate the `skills` JSON object and the "Environment" bullet for each project based directly on the JD. Put every required and preferred JD tool naturally into the relevant category in the skills section.
+4. Dynamically generate the `skills` JSON object and the "**Environment:**" bullet for each project based directly on the JD. Put every required and preferred JD tool naturally into the relevant category in the skills section.
 5. Before inserting any JD skill into a client achievement, you MUST check for the existence of that skill in the project timeline for that specific client (refer to Client Timeline Skill Guardrails). Do not add future tools to older projects. Ensure key requested skills like Angular, React, or Cloud (AWS, Azure, GCP) are prioritized and prominently placed in the most recent project if requested in the JD, to demonstrate current working knowledge and establish a strong fit.
 6. If a JD keyword does not align with this profile or any client timeline, do not invent experience. Mention only adjacent truthful skills from the profile. Do not keep multiple skills which are not used naturally or really together in the same project.
 7. Place the most important JD tools into work bullets without keyword stuffing.
 8. `professionalSummary` must be a JSON array of 10-12 strings, exactly like each client's `achievements` array. Each string is one responsibility-style summary bullet and will render on its own bullet line using the same bullet format as client responsibilities. Each summary item must be 2-3 resume lines long, target 28-45 words, and bold only 1-2 important JD keywords, tools, or domain phrases using `**keyword**`.
-9. Each client in `workExperience` must contain 8-10 responsibility/achievement bullets. The final bullet MUST be an "Environment: " line listing the specific technologies used (e.g., "Environment: Java 17, Spring Boot, React, Azure"). This environment list MUST be dynamically updated for each JD to include the exact skills and keywords requested, but the Environment line must not contain bold markdown. Every other client responsibility bullet must be 2-3 resume lines long, target 28-45 words, include JD-relevant keywords only where they align with that client's timeline, and bold only 1-2 important JD keywords using `**keyword**`.
+9. Each client in `workExperience` must contain 8-10 responsibility/achievement bullets. The final bullet inside the `achievements` array MUST be an "**Environment:** " line listing the specific technologies used (e.g., "**Environment:** Java 17, Spring Boot, React, Azure") — it must remain as the last bullet inside the `achievements` array and not be kept outside of the achievements bullet points. This environment list MUST be dynamically updated for each JD to include the exact skills and keywords requested, with only the word **Environment:** bolded, and all listed technologies remaining unbolded. Every other client responsibility bullet must be 2-3 resume lines long, target 28-45 words, include JD-relevant keywords only where they align with that client's timeline, and bold only 1-2 important JD keywords using `**keyword**`.
 10. Use the most JD-relevant bullets near the top of each client section.
 11. Preserve all real companies, titles, dates, and locations exactly.
 12. Do not invent metrics. Use quantified impact only when strongly grounded.
@@ -105,8 +105,8 @@ After writing the resume:
 - Confirm that only the real companies, titles, dates, locations, certifications, and education from this profile were used.
 - Confirm that every requested JD skill included in a client bullet is believable for that client timeline.
 - Confirm that each project has 8-10 responsibility/achievement bullets.
-- Confirm that every project's final achievement bullet is an "Environment: " line.
-- Confirm bold markdown appears only in `professionalSummary` and non-Environment client responsibility bullets, with 1-2 bolded JD keywords per bullet.
+- Confirm that every project's final achievement bullet is an "**Environment:** " line inside achievements.
+- Confirm bold markdown appears only in `professionalSummary`, non-Environment client responsibility bullets (with 1-2 bolded JD keywords per bullet), and the "**Environment:**" label itself.
 - If any requirement is not met, revise before delivering the final JSON.
 
 ## Output Format
@@ -134,7 +134,7 @@ Return only valid JSON. No preamble and no markdown fence.
       "dates": "Dates from this profile",
       "achievements": [
         "Client responsibility/achievement bullet with only 1-2 important JD keywords bolded using **keyword**.",
-        "Environment: Dynamically generated list of JD skills and technologies for this project with no bold markdown (e.g. Java 17, Spring Boot, Azure, React)."
+        "**Environment:** Dynamically generated list of JD skills and technologies for this project with no bold markdown on the skills themselves (e.g. **Environment:** Java 17, Spring Boot, Azure, React)."
       ]
     }
   ],
@@ -154,8 +154,8 @@ Return only valid JSON. No preamble and no markdown fence.
       "Only the real companies, titles, dates, locations, certifications, and education from this profile were used.",
       "Every requested JD skill included in a client bullet is believable for that client timeline.",
       "Each project has 8-10 responsibility/achievement bullets.",
-      "Every project's final achievement bullet is an Environment line.",
-      "Bold markdown appears only in professionalSummary and non-Environment client responsibility bullets.",
+      "Every project's final achievement bullet is an **Environment:** line inside achievements.",
+      "Bold markdown appears only in professionalSummary, non-Environment client responsibility bullets, and the **Environment:** label itself.",
       "No unsupported metrics or percentages were invented."
     ]
   }
